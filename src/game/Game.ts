@@ -6,8 +6,12 @@ import { MainMenuScene } from "./scenes/MainMenuScene";
 const createGame = (parent: HTMLElement | string) => {
   const config: Phaser.Types.Core.GameConfig = {
     type: Phaser.AUTO,
-    width: 800,
-    height: 600,
+    width: 1920,
+    height: 1080,
+    render: {
+      antialiasGL: true,
+      antialias: true,
+    },
     physics: {
       default: "arcade",
       // arcade: {

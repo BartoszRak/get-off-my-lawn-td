@@ -27,10 +27,12 @@ export default class StartScene extends Phaser.Scene {
       })
       .setOrigin(0.5);
 
-    this.input.keyboard?.on(
-      Phaser.Input.Keyboard.Events.ANY_KEY_DOWN,
-      () => this.startGame()
+    this.input.keyboard?.on(Phaser.Input.Keyboard.Events.ANY_KEY_DOWN, () =>
+      this.startGame()
     );
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.input.keyboard?.off(Phaser.Input.Keyboard.Events.ANY_KEY_DOWN);
+    });
   }
 
   createEmitter() {
@@ -58,5 +60,6 @@ export default class StartScene extends Phaser.Scene {
   private startGame() {
     // this.scene.stop()
     this.scene.manager.switch(this.scene.key, SceneKey.MainMenu);
+    this.scene.manager.start(SceneKey.MainMenu);
   }
 }
