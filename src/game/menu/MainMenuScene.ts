@@ -1,5 +1,5 @@
 import { isDefined } from "../../utils";
-import { SceneKey } from "./SceneKey";
+import { SceneKey } from "../SceneKey";
 
 enum MainMenuImage {
   GlossPanel = "gloss-panel",

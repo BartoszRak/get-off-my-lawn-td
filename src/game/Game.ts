@@ -1,7 +1,9 @@
 import Phaser from "phaser";
-import StartScene from "./scenes/StartScene";
+import StartScene from "./StartScene";
 import { GameParentId } from "./GameParentId";
-import { MainMenuScene } from "./scenes/MainMenuScene";
+import { MainMenuScene } from "./menu/MainMenuScene";
+import { PickMapScene } from "./maps/PickMapScene";
+import { CreateMapScene } from "./maps/CreateMapScene";
 
 const createGame = (parent: HTMLElement | string) => {
   const config: Phaser.Types.Core.GameConfig = {
@@ -18,7 +20,7 @@ const createGame = (parent: HTMLElement | string) => {
       //   gravity: { y: 200 },
       // },
     },
-    scene: [StartScene, MainMenuScene],
+    scene: [StartScene, MainMenuScene, PickMapScene, CreateMapScene],
     fps: {
       min: 8,
       target: 16,
