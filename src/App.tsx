@@ -2,11 +2,11 @@ import React from "react";
 import logo from "./logo.svg";
 import "./App.css";
 // import { game } from "./game/Game";
-// import HelloWorldScene from "./game/scenes/HelloWorld";
+// import StartScene from "./game/scenes/HelloWorld";
 import { GameParentId } from "./game/GameParentId";
 
 // const handleClick = () => {
-//   const scene = game.scene.keys.helloworld as HelloWorldScene;
+//   const scene = game.scene.keys.helloworld as StartScene;
 //   scene.createEmitter();
 // };
 

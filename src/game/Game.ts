@@ -1,19 +1,20 @@
 import Phaser from "phaser";
-import HelloWorldScene from "./scenes/HelloWorld";
+import StartScene from "./scenes/StartScene";
 import { GameParentId } from "./GameParentId";
+import { MainMenuScene } from "./scenes/MainMenuScene";
 
 const createGame = (parent: HTMLElement | string) => {
   const config: Phaser.Types.Core.GameConfig = {
-    type: Phaser.WEBGL,
+    type: Phaser.AUTO,
     width: 800,
     height: 600,
     physics: {
       default: "arcade",
-      arcade: {
-        gravity: { y: 200 },
-      },
+      // arcade: {
+      //   gravity: { y: 200 },
+      // },
     },
-    scene: HelloWorldScene,
+    scene: [StartScene, MainMenuScene],
     fps: {
       min: 8,
       target: 16,
