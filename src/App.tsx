@@ -1,6 +1,14 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import logo from "./logo.svg";
+import "./App.css";
+// import { game } from "./game/Game";
+// import HelloWorldScene from "./game/scenes/HelloWorld";
+import { GameParentId } from "./game/GameParentId";
+
+// const handleClick = () => {
+//   const scene = game.scene.keys.helloworld as HelloWorldScene;
+//   scene.createEmitter();
+// };
 
 function App() {
   return (
@@ -18,6 +26,9 @@ function App() {
         >
           Learn React
         </a>
+        {/* <button className="App-button" onClick={handleClick}>
+          Or click me
+        </button> */}
       </header>
     </div>
   );

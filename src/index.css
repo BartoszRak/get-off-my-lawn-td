@@ -11,3 +11,13 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+* {
+  box-sizing: border-box;
+}
+
+#game-root {
+  border: 1px solid green;
+  width: 100%;
+  height: 100vh;
+}
