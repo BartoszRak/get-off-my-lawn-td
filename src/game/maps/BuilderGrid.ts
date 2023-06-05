@@ -1,5 +1,5 @@
 import { flatten } from "lodash";
-import { Position, Size } from "../../utils";
+import { Position, Size, isDefined } from "../../utils";
 import { BuilderCell } from "./BuilderCell";
 
 interface RowsAndColumns {
@@ -14,6 +14,7 @@ export class BuilderGrid extends Phaser.GameObjects.Container {
   private endingCell?: BuilderCell;
   private draggedOver: BuilderCell[] = [];
   private isDragging = false;
+  private readonly entryCellsLimit = 2;
 
   constructor(
     scene: Phaser.Scene,
@@ -37,13 +38,13 @@ export class BuilderGrid extends Phaser.GameObjects.Container {
     // gridRectangle.on(Phaser.Input.Events.POINTER_OUT, () => {
     //   console.log('--- out grid')
     // });
-    console.log("--- grid", gridPosition.x, gridPosition.y);
-    console.log("--- done grid", gridRectangle.x, gridRectangle.y);
-    console.log("--- grid size", gridSize);
-    console.log("--- rectangle size", {
-      width: gridRectangle.width,
-      height: gridRectangle.height,
-    });
+    // console.log("--- grid", gridPosition.x, gridPosition.y);
+    // console.log("--- done grid", gridRectangle.x, gridRectangle.y);
+    // console.log("--- grid size", gridSize);
+    // console.log("--- rectangle size", {
+    //   width: gridRectangle.width,
+    //   height: gridRectangle.height,
+    // });
     const cellWidth = gridSize.width / gridCount.columns;
     const cellHeight = gridSize.height / gridCount.rows;
 
@@ -93,6 +94,14 @@ export class BuilderGrid extends Phaser.GameObjects.Container {
     this.connectCellListeners();
   }
 
+  export() {
+    return {
+      ...this.gridSize,
+      ...this.gridCount,
+      cells: this.allCells.map(specifiedCell => specifiedCell.export()),
+    }
+  }
+
   reset() {
     this.selectedCells.forEach((specifiedCell) => specifiedCell.deselect());
     this.selectedCells = [];
@@ -100,28 +109,50 @@ export class BuilderGrid extends Phaser.GameObjects.Container {
 
   private connectCellListeners() {
     this.allCells.forEach((specifiedCell) => {
-      specifiedCell.on(Phaser.Input.Events.POINTER_DOWN, () => {
-        console.log("-- CLICKED", specifiedCell.id);
-        this.onCellClicked(specifiedCell);
-      });
-      specifiedCell.on(Phaser.Input.Events.POINTER_UP, () => {
-        console.log("-- RELEASED", specifiedCell.id);
-        this.onCellReleased(specifiedCell);
-      });
+      specifiedCell.on(
+        Phaser.Input.Events.POINTER_DOWN,
+        (pointer: Phaser.Input.Pointer) => {
+          this.onCellClicked(specifiedCell, pointer.rightButtonDown());
+        }
+      );
+      specifiedCell.on(
+        Phaser.Input.Events.POINTER_UP,
+        (pointer: Phaser.Input.Pointer) => {
+          this.onCellReleased(specifiedCell, pointer.rightButtonReleased());
+        }
+      );
       specifiedCell.on(Phaser.Input.Events.POINTER_OUT, () => {
-        console.log("--- POINTER OUT", specifiedCell.id);
+        // console.log("--- POINTER OUT", specifiedCell.id);
         if (this.isDragging) {
+          // console.log('-- DRAG')
           this.draggedOver.push(specifiedCell);
+          specifiedCell.highlight();
         }
       });
     });
   }
 
-  private onCellReleased(cell: BuilderCell) {
-    this.isDragging = false;
-    this.draggedOver.push(cell);
-    this.selectCells(this.draggedOver);
-    this.draggedOver = [];
+  private onCellReleased(cell: BuilderCell, isRightClick: boolean) {
+    if (!isRightClick) {
+      this.isDragging = false;
+      this.draggedOver.push(cell);
+      this.selectCells(this.draggedOver);
+      this.draggedOver = [];
+    } else {
+      if (this.isEdgeCell(cell) && this.isAlreadySelected(cell)) {
+        const shouldCheckLimit = !cell.isEntry;
+        if (!shouldCheckLimit) {
+          cell.switchEntry();
+        } else if (!this.isEntryCellsLimitReached()) {
+          cell.switchEntry();
+        }
+      }
+    }
+  }
+
+  private isEntryCellsLimitReached() {
+    const entryCells = this.selectedCells.filter((cell) => cell.isEntry);
+    return entryCells.length >= this.entryCellsLimit;
   }
 
   private selectCells(cells: BuilderCell[]) {
@@ -139,8 +170,10 @@ export class BuilderGrid extends Phaser.GameObjects.Container {
     this.selectedCells = [];
   }
 
-  private onCellClicked(cell: BuilderCell) {
-    this.isDragging = true;
+  private onCellClicked(cell: BuilderCell, isRightClick: boolean) {
+    if (!isRightClick) {
+      this.isDragging = true;
+    }
     // const message = `${this.selectedCells.length + 1}`;
     // cell.select(message);
     // this.selectedCells.push(cell);
@@ -152,5 +185,11 @@ export class BuilderGrid extends Phaser.GameObjects.Container {
     const isFirstColumn = cell.column === 0;
     const isLastColumn = cell.column + 1 === this.gridCount.columns;
     return [isFirstRow, isLastRow, isFirstColumn, isLastColumn].some(Boolean);
+  }
+
+  private isAlreadySelected(cell: BuilderCell) {
+    return isDefined(
+      this.selectedCells.find((specifiedCell) => specifiedCell.id === cell.id)
+    );
   }
 }

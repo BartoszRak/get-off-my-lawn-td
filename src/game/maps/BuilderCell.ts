@@ -1,4 +1,4 @@
-import { Position, Size } from "../../utils";
+import { Position, Size, isDefined } from "../../utils";
 import { BuilderCellColor } from "./BuilderCellColor";
 
 export class BuilderCell extends Phaser.GameObjects.Container {
@@ -7,6 +7,8 @@ export class BuilderCell extends Phaser.GameObjects.Container {
   private text?: Phaser.GameObjects.Text;
 
   private isSelected = false;
+  private isHighlighted = false;
+  public isEntry = false;
 
   constructor(
     scene: Phaser.Scene,
@@ -34,23 +36,62 @@ export class BuilderCell extends Phaser.GameObjects.Container {
       cell.setInteractive();
     }
 
-    cell.on(Phaser.Input.Events.POINTER_OVER, () => {
-      this.emit(Phaser.Input.Events.POINTER_OVER);
-      this.onHoverIn();
+    cell.on(Phaser.Input.Events.POINTER_OVER, (ctx: any) => {
+      this.emit(Phaser.Input.Events.POINTER_OVER, ctx);
+      if (!this.isHighlighted) {
+        this.hover();
+      }
     });
-    cell.on(Phaser.Input.Events.POINTER_OUT, () => {
-      this.emit(Phaser.Input.Events.POINTER_OUT);
-      this.onHoverOut();
+    cell.on(Phaser.Input.Events.POINTER_OUT, (ctx: any) => {
+      this.emit(Phaser.Input.Events.POINTER_OUT, ctx);
+      if (!this.isHighlighted) {
+        this.unhover();
+      }
     });
 
-    cell.on(Phaser.Input.Events.POINTER_DOWN, () => {
-      this.emit(Phaser.Input.Events.POINTER_DOWN);
+    cell.on(Phaser.Input.Events.POINTER_DOWN, (ctx: any) => {
+      this.emit(Phaser.Input.Events.POINTER_DOWN, ctx);
     });
-    cell.on(Phaser.Input.Events.POINTER_UP, () => {
-      this.emit(Phaser.Input.Events.POINTER_UP);
+    cell.on(Phaser.Input.Events.POINTER_UP, (ctx: any) => {
+      this.emit(Phaser.Input.Events.POINTER_UP, ctx);
     });
 
     this.cell = cell;
+  }
+
+  export() {
+    return {
+      ...this.cellPosition,
+      ...this.cellSize,
+      isEntry: this.isEntry,
+      isPath: this.isSelected,
+    };
+  }
+
+  switchEntry() {
+    this.isEntry ? this.unmarkAsEntry() : this.markAsEntry();
+  }
+
+  private markAsEntry() {
+    this.isEntry = true;
+    this.text = this.scene.add
+      .text(
+        this.cell.x, // - cell.width / 2,
+        this.cell.y, // - cell.height / 2,
+        "ENTRY",
+        {
+          color: "000000",
+        }
+      )
+      .setOrigin(1);
+  }
+
+  private unmarkAsEntry() {
+    this.isEntry = false;
+    if (isDefined(this.text)) {
+      this.text.destroy(true);
+      this.text = undefined;
+    }
   }
 
   select(message: string, isEntry = false) {
@@ -60,16 +101,16 @@ export class BuilderCell extends Phaser.GameObjects.Container {
     this.isSelected = true;
     const hexColor = isEntry ? BuilderCellColor.Entry : BuilderCellColor.Path;
     this.cell.setFillStyle(parseInt(hexColor, 16), 0.25);
-    this.text = this.scene.add
-      .text(
-        this.cell.x, // - cell.width / 2,
-        this.cell.y, // - cell.height / 2,
-        message,
-        {
-          color: "000000",
-        }
-      )
-      .setOrigin(1);
+    // this.text = this.scene.add
+    //   .text(
+    //     this.cell.x, // - cell.width / 2,
+    //     this.cell.y, // - cell.height / 2,
+    //     message,
+    //     {
+    //       color: "000000",
+    //     }
+    //   )
+    //   .setOrigin(1);
   }
 
   deselect() {
@@ -77,22 +118,40 @@ export class BuilderCell extends Phaser.GameObjects.Container {
       return;
     }
     this.cell.setFillStyle(parseInt(BuilderCellColor.Common, 16), 0);
-    this.text?.destroy(true)
-
+    this.text?.destroy(true);
+    this.text = undefined;
   }
 
-  private onHoverIn() {
+  highlight() {
+    if (this.isSelected) {
+      // console.log("--- going b, selected");
+      return;
+    }
+    this.isHighlighted = true;
+    this.cell.setFillStyle(parseInt(BuilderCellColor.Hover, 16), 0.15);
+  }
+
+  unhighlight() {
     if (this.isSelected) {
       return;
     }
-    this.cell.setFillStyle(parseInt("fcba03", 16), 0.15);
+    this.isHighlighted = false;
+    this.cell.setFillStyle(parseInt(BuilderCellColor.Hover, 16), 0);
   }
 
-  private onHoverOut() {
+  private hover() {
+    if (this.isSelected) {
+      // console.log("--- going b, selected");
+      return;
+    }
+    this.cell.setFillStyle(parseInt(BuilderCellColor.Hover, 16), 0.15);
+  }
+
+  private unhover() {
     if (this.isSelected) {
       return;
     }
-    this.cell.setFillStyle(parseInt("000000", 16), 0);
+    this.cell.setFillStyle(parseInt(BuilderCellColor.Hover, 16), 0);
   }
 
   private makeAvailable() {

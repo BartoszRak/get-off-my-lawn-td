@@ -11,6 +11,7 @@ const createGame = (parent: HTMLElement | string) => {
     width: 1920,
     height: 1080,
     backgroundColor: 'ffffff',
+    disableContextMenu: true,
     render: {
       antialiasGL: true,
       antialias: true,

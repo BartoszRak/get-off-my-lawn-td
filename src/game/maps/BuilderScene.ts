@@ -62,6 +62,8 @@ export class BuilderScene extends Phaser.Scene {
         text: "EXPORT",
         onClick: () => {
           console.log("--- export");
+          const exportedGrid = grid.export();
+          console.warn("EXPORTED GRID:", JSON.stringify(exportedGrid));
         },
       },
       {
