@@ -4,9 +4,8 @@ import { Image, Images } from "../Images";
 import { SceneKey } from "../SceneKey";
 import { Button } from "../menu/Button";
 import { BuilderGrid } from "./BuilderGrid";
-import { ButtonDefaultSize } from "../menu/ButtonDefaultSize";
 
-export class CreateMapScene extends Phaser.Scene {
+export class BuilderScene extends Phaser.Scene {
   private readonly gridSize: Size = { width: 25, height: 25 };
   private readonly planeWidthPercentage = 0.6;
   private readonly selectedCells: Phaser.GameObjects.Image[] = [];
