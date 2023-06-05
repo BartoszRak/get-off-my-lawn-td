@@ -39,6 +39,7 @@ export class MainMenuScene extends Phaser.Scene {
     this.add
       .text(width / 2, 100, "MENU", {
         fontSize: 100,
+        color: "000000",
       })
       .setOrigin(0.5);
     this.createButtons([

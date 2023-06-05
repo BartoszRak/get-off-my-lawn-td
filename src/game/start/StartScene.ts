@@ -24,6 +24,7 @@ export default class StartScene extends Phaser.Scene {
       .text(width / 2, height / 2, "Press any KEY to start", {
         fontFamily: '"Lato"',
         fontSize: 30,
+        color: "000000",
       })
       .setOrigin(0.5);
 

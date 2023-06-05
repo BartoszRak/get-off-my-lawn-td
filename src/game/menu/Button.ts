@@ -27,7 +27,9 @@ export class Button extends Phaser.GameObjects.Container {
       })
       .setOrigin(0.5);
     const buttonText = this.scene.add
-      .text(button.x, button.y, text)
+      .text(button.x, button.y, text, {
+        color: "000000",
+      })
       .setOrigin(0.5);
 
     if (isDefined(onClick)) {

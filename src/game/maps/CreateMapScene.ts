@@ -3,6 +3,8 @@ import { Position, PositionAndSize, Size } from "../../utils";
 import { Image, Images } from "../Images";
 import { SceneKey } from "../SceneKey";
 import { Button } from "../menu/Button";
+import { BuilderGrid } from "./BuilderGrid";
+import { ButtonDefaultSize } from "../menu/ButtonDefaultSize";
 
 export class CreateMapScene extends Phaser.Scene {
   private readonly gridSize: Size = { width: 25, height: 25 };
@@ -26,8 +28,19 @@ export class CreateMapScene extends Phaser.Scene {
 
   create() {
     this.input.setDefaultCursor("url(assets/cursor_pointerFlat.png), default");
-    this.createButtons();
-    this.createGrid();
+    // this.createGrid();
+    const { width, height } = this.scale;
+    const planeWidth = width * this.planeWidthPercentage;
+    const grid = new BuilderGrid(
+      this,
+      { x: width / 2, y: height / 2 },
+      { width: planeWidth, height: planeWidth },
+      {
+        columns: 24,
+        rows: 24,
+      }
+    );
+    this.createButtons(grid);
   }
 
   private createGrid() {
@@ -88,14 +101,15 @@ export class CreateMapScene extends Phaser.Scene {
     cell.off(Phaser.Input.Events.POINTER_OVER);
     cell.off(Phaser.Input.Events.POINTER_OUT);
 
-    cell.setTintFill(
-      parseInt(this.pickNextActiveCellColour(), 16)
-    );
+    cell.setTintFill(parseInt(this.pickNextActiveCellColour(), 16));
     const text = this.add
       .text(
         cell.x, // - cell.width / 2,
         cell.y, // - cell.height / 2,
-        `${this.selectedCells.length + 1}`
+        `${this.selectedCells.length + 1}`,
+        {
+          color: "000000",
+        }
       )
       .setOrigin(0.5);
     this.selectedCells.push(cell);
@@ -109,7 +123,8 @@ export class CreateMapScene extends Phaser.Scene {
     return this.activeCellColor;
   }
 
-  private createButtons() {
+  private createButtons(grid: BuilderGrid) {
+    const { width, height } = this.scale;
     new Button(
       this,
       {
@@ -117,6 +132,32 @@ export class CreateMapScene extends Phaser.Scene {
         onClick: () => this.goBackToMenu(),
       },
       { x: 100, y: 50 },
+      undefined
+    );
+    new Button(
+      this,
+      {
+        text: "RESET",
+        onClick: () => grid.deselectAllCells(),
+      },
+      {
+        x: width - 100,// - ButtonDefaultSize.width,
+        y: height - 50// - ButtonDefaultSize.height,
+      },
+      undefined
+    );
+    new Button(
+      this,
+      {
+        text: "EXPORT",
+        onClick: () => {
+          console.log('--- export')
+        },
+      },
+      {
+        x: width - 100,// - ButtonDefaultSize.width,
+        y: height - 120// - ButtonDefaultSize.height,
+      },
       undefined
     );
   }
