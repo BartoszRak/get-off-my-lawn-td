@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import StartScene from "./StartScene";
+import StartScene from "./start/StartScene";
 import { GameParentId } from "./GameParentId";
 import { MainMenuScene } from "./menu/MainMenuScene";
 import { PickMapScene } from "./maps/PickMapScene";

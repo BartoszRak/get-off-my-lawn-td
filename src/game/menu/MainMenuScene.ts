@@ -1,11 +1,7 @@
 import { isDefined } from "../../utils";
+import { Image, Images } from "../Images";
 import { SceneKey } from "../SceneKey";
-
-enum MainMenuImage {
-  GlossPanel = "gloss-panel",
-  DefaultCursor = "DefaultCursor",
-  PointerCursor = "PointerCursor",
-}
+import { Button } from "./Button";
 
 interface ButtonWithText {
   button: Phaser.GameObjects.Image;
@@ -18,7 +14,6 @@ interface ButtonConfig {
 }
 
 export class MainMenuScene extends Phaser.Scene {
-  private buttons: ButtonWithText[] = [];
   private buttonSize: { width: number; height: number } = {
     width: 150,
     height: 50,
@@ -32,12 +27,9 @@ export class MainMenuScene extends Phaser.Scene {
   }
 
   preload() {
-    this.load.image(MainMenuImage.GlossPanel, "assets/glassPanel.png");
-    this.load.image(
-      MainMenuImage.DefaultCursor,
-      "assets/cursor_pointerFlat.png"
-    );
-    this.load.image(MainMenuImage.PointerCursor, "assets/cursor_hand.png");
+    this.load.image(...Images[Image.GlassPanel]);
+    this.load.image(...Images[Image.PointerFlat]);
+    this.load.image(...Images[Image.CursorHand]);
   }
 
   create() {
@@ -54,6 +46,12 @@ export class MainMenuScene extends Phaser.Scene {
         text: "Start",
         onClick: () => {
           console.log("--- START CLICKED");
+        },
+      },
+      {
+        text: "Create a map",
+        onClick: () => {
+          this.scene.manager.switch(this.scene.key, SceneKey.CreateMap);
         },
       },
       {
@@ -83,48 +81,8 @@ export class MainMenuScene extends Phaser.Scene {
         blockY +
         this.buttonSize.height / 2 +
         (this.buttonSize.height + this.buttonMarginY) * index;
-      const createdButton = this.createButton(x, y, specifiedConfig);
-      this.buttons.push(createdButton);
-    });
-  }
 
-  private createButton(
-    x: number,
-    y: number,
-    { text, onClick }: ButtonConfig
-  ): ButtonWithText {
-    const button = this.add
-      .image(x, y, MainMenuImage.GlossPanel)
-      .setDisplaySize(this.buttonSize.width, this.buttonSize.height)
-      .setOrigin(0.5)
-      .setInteractive({
-        cursor: "url(assets/cursor_hand.png), default",
-      });
-
-    if (isDefined(onClick)) {
-      button.on(Phaser.Input.Events.POINTER_DOWN, () => {
-        onClick();
-      });
-    }
-
-    button.on(Phaser.Input.Events.POINTER_OVER, () => {
-      button.setTintFill(parseInt("00FF00", 16));
+      new Button(this, specifiedConfig, { x, y }, this.buttonSize);
     });
-    button.on(Phaser.Input.Events.POINTER_OUT, () => {
-      button.clearTint();
-    });
-    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
-      button.off(Phaser.Input.Events.POINTER_OVER);
-      button.off(Phaser.Input.Events.POINTER_OUT);
-      if (isDefined(onClick)) {
-        button.off(Phaser.Input.Events.POINTER_DOWN);
-      }
-    });
-    const buttonText = this.add.text(button.x, button.y, text).setOrigin(0.5);
-
-    return {
-      button,
-      text: buttonText,
-    };
   }
 }
