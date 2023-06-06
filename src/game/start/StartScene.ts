@@ -20,14 +20,22 @@ export default class StartScene extends Phaser.Scene {
     const { height, width } = this.scale;
     // console.log('SCENE: Create')
     this.createEmitter();
-    this.add
+    const text = this.add
       .text(width / 2, height / 2, "Press any KEY to start", {
         fontFamily: '"Lato"',
         fontSize: 30,
         color: "000000",
       })
       .setOrigin(0.5);
-
+    this.tweens.add({
+      targets: [text],
+      alpha: 0,
+      duration: 1000,
+      repeat: -1,
+      ease: "Linear",
+      hold: 500,
+      yoyo: true,
+    });
     this.input.keyboard?.on(Phaser.Input.Keyboard.Events.ANY_KEY_DOWN, () =>
       this.startGame()
     );
