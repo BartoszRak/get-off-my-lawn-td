@@ -33,7 +33,7 @@ export class Button extends Phaser.GameObjects.Container {
       .setOrigin(0.5);
 
     if (isDefined(onClick)) {
-      button.on(Phaser.Input.Events.POINTER_DOWN, () => {
+      button.on(Phaser.Input.Events.POINTER_UP, () => {
         onClick();
       });
     }
@@ -47,7 +47,7 @@ export class Button extends Phaser.GameObjects.Container {
       button.off(Phaser.Input.Events.POINTER_OVER);
       button.off(Phaser.Input.Events.POINTER_OUT);
       if (isDefined(onClick)) {
-        button.off(Phaser.Input.Events.POINTER_DOWN);
+        button.off(Phaser.Input.Events.POINTER_UP);
       }
     });
 
