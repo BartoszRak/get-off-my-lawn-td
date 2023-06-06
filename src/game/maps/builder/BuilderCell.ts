@@ -1,4 +1,4 @@
-import { Position, Size, isDefined } from "../../utils";
+import { Position, Size, isDefined } from "../../../utils";
 import { BuilderCellColor } from "./BuilderCellColor";
 
 export class BuilderCell extends Phaser.GameObjects.Container {
@@ -146,6 +146,7 @@ export class BuilderCell extends Phaser.GameObjects.Container {
     this.cell.setFillStyle(parseInt(BuilderCellColor.Common, 16), 0);
     this.text?.destroy(true);
     this.text = undefined;
+    this.unstage()
   }
 
   highlight() {

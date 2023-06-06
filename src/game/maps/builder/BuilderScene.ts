@@ -1,6 +1,6 @@
-import { Image, Images } from "../Images";
-import { SceneKey } from "../SceneKey";
-import { Button } from "../menu/Button";
+import { Image, Images } from "../../Images";
+import { SceneKey } from "../../SceneKey";
+import { Button } from "../../menu/Button";
 import { BuilderGrid } from "./BuilderGrid";
 import { saveAs } from "file-saver";
 
@@ -68,7 +68,7 @@ export class BuilderScene extends Phaser.Scene {
           const blob = new Blob([stringifiedExportedGrid], {
             type: "application/json;charset=utf-8",
           });
-          saveAs(blob, "exported-map.json");
+          saveAs(blob, "exported-map");
           grid.deselectAllCells();
         },
       },

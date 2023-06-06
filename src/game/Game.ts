@@ -2,8 +2,8 @@ import Phaser from "phaser";
 import StartScene from "./start/StartScene";
 import { GameParentId } from "./GameParentId";
 import { MainMenuScene } from "./menu/MainMenuScene";
-import { PickMapScene } from "./maps/PickMapScene";
-import { BuilderScene } from "./maps/BuilderScene";
+import { PickMapScene } from "./maps/play/PickMapScene";
+import { BuilderScene } from "./maps/builder/BuilderScene";
 
 const createGame = (parent: HTMLElement | string) => {
   const config: Phaser.Types.Core.GameConfig = {

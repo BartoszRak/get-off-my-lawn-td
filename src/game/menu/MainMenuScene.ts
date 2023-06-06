@@ -44,9 +44,9 @@ export class MainMenuScene extends Phaser.Scene {
       .setOrigin(0.5);
     this.createButtons([
       {
-        text: "Start",
+        text: "Play",
         onClick: () => {
-          console.log("--- START CLICKED");
+          this.scene.manager.switch(this.scene.key, SceneKey.PickMap);
         },
       },
       {

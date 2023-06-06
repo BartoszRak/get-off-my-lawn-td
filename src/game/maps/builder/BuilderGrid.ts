@@ -1,12 +1,8 @@
 import { flatten } from "lodash";
-import { Position, Size, isDefined } from "../../utils";
+import { Position, Size, isDefined } from "../../../utils";
 import { BuilderCell } from "./BuilderCell";
 import Graph from "node-dijkstra";
-
-interface RowsAndColumns {
-  rows: number;
-  columns: number;
-}
+import { RowsAndColumns } from "./RowsAndColumns";
 
 export class BuilderGrid extends Phaser.GameObjects.Container {
   private readonly allCells: BuilderCell[] = [];
