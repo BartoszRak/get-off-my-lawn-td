@@ -1,8 +1,8 @@
-import { Size } from "../../utils";
 import { Image, Images } from "../Images";
 import { SceneKey } from "../SceneKey";
 import { Button } from "../menu/Button";
 import { BuilderGrid } from "./BuilderGrid";
+import { saveAs } from "file-saver";
 
 export class BuilderScene extends Phaser.Scene {
   private readonly planeWidthPercentage = 0.4;
@@ -63,7 +63,13 @@ export class BuilderScene extends Phaser.Scene {
         onClick: () => {
           console.log("--- export");
           const exportedGrid = grid.export();
-          console.warn("EXPORTED GRID:", JSON.stringify(exportedGrid));
+          const stringifiedExportedGrid = JSON.stringify(exportedGrid);
+          console.warn("EXPORTED GRID:", stringifiedExportedGrid);
+          const blob = new Blob([stringifiedExportedGrid], {
+            type: "application/json;charset=utf-8",
+          });
+          saveAs(blob, "exported-map.json");
+          grid.deselectAllCells();
         },
       },
       {
