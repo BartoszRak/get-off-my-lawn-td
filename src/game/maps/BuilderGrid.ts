@@ -1,6 +1,7 @@
 import { flatten } from "lodash";
 import { Position, Size, isDefined } from "../../utils";
 import { BuilderCell } from "./BuilderCell";
+import Graph from "node-dijkstra";
 
 interface RowsAndColumns {
   rows: number;
@@ -94,12 +95,55 @@ export class BuilderGrid extends Phaser.GameObjects.Container {
     this.connectCellListeners();
   }
 
+  markPath() {
+    const route = new Graph();
+    this.selectedCells.forEach((specifiedCell) => {
+      const neigbours = this.findNeighbours(
+        specifiedCell,
+        this.selectedCells
+      ).filter(({ id }) => id !== specifiedCell.id);
+      const neihboursMap = neigbours.reduce(
+        (acc, specifiedNeihbour) => ({
+          ...acc,
+          [specifiedNeihbour.id]: 1,
+        }),
+        {}
+      );
+      route.addNode(specifiedCell.id, neihboursMap);
+    });
+    const [cellA, cellB] = this.getEntryCells();
+    const pathResult = route.path(cellA.id, cellB.id);
+    const pathCellIds = Array.isArray(pathResult)
+      ? pathResult
+      : pathResult.path;
+    this.selectedCells.forEach((specifiedCell) => {
+      const shouldBeStaged = pathCellIds.includes(specifiedCell.id);
+      if (shouldBeStaged) {
+        specifiedCell.stage();
+      }
+    });
+  }
+
+  unmarkPath() {
+    this.selectedCells.forEach((specifiedCell) => {
+      if (specifiedCell.isStaged) {
+        specifiedCell.unstage();
+      }
+    });
+  }
+
+  findNeighbours(cell: BuilderCell, restOfCells: BuilderCell[]): BuilderCell[] {
+    return restOfCells.filter((specifiedCell) =>
+      cell.isNeighbourOf(specifiedCell)
+    );
+  }
+
   export() {
     return {
       ...this.gridSize,
       ...this.gridCount,
-      cells: this.allCells.map(specifiedCell => specifiedCell.export()),
-    }
+      cells: this.allCells.map((specifiedCell) => specifiedCell.export()),
+    };
   }
 
   reset() {
@@ -139,20 +183,31 @@ export class BuilderGrid extends Phaser.GameObjects.Container {
       this.selectCells(this.draggedOver);
       this.draggedOver = [];
     } else {
-      if (this.isEdgeCell(cell) && this.isAlreadySelected(cell)) {
+      const isEdgeSelectedCellClicked =
+        this.isEdgeCell(cell) && this.isAlreadySelected(cell);
+      if (isEdgeSelectedCellClicked) {
         const shouldCheckLimit = !cell.isEntry;
-        if (!shouldCheckLimit) {
+        const shouldSwitchEntry =
+          !shouldCheckLimit ||
+          (shouldCheckLimit && !this.isEntryCellsLimitReached());
+        if (shouldSwitchEntry) {
           cell.switchEntry();
-        } else if (!this.isEntryCellsLimitReached()) {
-          cell.switchEntry();
+          if (this.isEntryCellsLimitReached()) {
+            this.markPath();
+          } else {
+            this.unmarkPath();
+          }
         }
       }
     }
   }
 
   private isEntryCellsLimitReached() {
-    const entryCells = this.selectedCells.filter((cell) => cell.isEntry);
-    return entryCells.length >= this.entryCellsLimit;
+    return this.getEntryCells().length >= this.entryCellsLimit;
+  }
+
+  private getEntryCells() {
+    return this.selectedCells.filter((cell) => cell.isEntry);
   }
 
   private selectCells(cells: BuilderCell[]) {

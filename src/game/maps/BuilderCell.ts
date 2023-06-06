@@ -9,6 +9,7 @@ export class BuilderCell extends Phaser.GameObjects.Container {
   private isSelected = false;
   private isHighlighted = false;
   public isEntry = false;
+  public isStaged = false;
 
   constructor(
     scene: Phaser.Scene,
@@ -59,12 +60,21 @@ export class BuilderCell extends Phaser.GameObjects.Container {
     this.cell = cell;
   }
 
+  isNeighbourOf(cell: BuilderCell) {
+    const rowDiff = Math.abs(this.row - cell.row);
+    const columnDiff = Math.abs(this.column - cell.column);
+    return (
+      (rowDiff <= 1 && columnDiff === 0) || (rowDiff === 0 && columnDiff <= 1)
+    );
+  }
+
   export() {
+    const isPath = this.isStaged;
     return {
       ...this.cellPosition,
       ...this.cellSize,
-      isEntry: this.isEntry,
-      isPath: this.isSelected,
+      isEntry: isPath ? this.isEntry : false,
+      isPath,
     };
   }
 
@@ -92,6 +102,22 @@ export class BuilderCell extends Phaser.GameObjects.Container {
       this.text.destroy(true);
       this.text = undefined;
     }
+  }
+
+  stage() {
+    if (this.isStaged) {
+      return;
+    }
+    this.isStaged = true;
+    this.cell.setStrokeStyle(1, parseInt(BuilderCellColor.Staged, 16));
+  }
+
+  unstage() {
+    if (!this.isStaged) {
+      return;
+    }
+    this.isStaged = false;
+    this.cell.setStrokeStyle(0.5, parseInt(BuilderCellColor.Common, 16));
   }
 
   select(message: string, isEntry = false) {

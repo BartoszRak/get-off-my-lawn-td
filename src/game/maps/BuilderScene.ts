@@ -5,7 +5,7 @@ import { Button } from "../menu/Button";
 import { BuilderGrid } from "./BuilderGrid";
 
 export class BuilderScene extends Phaser.Scene {
-  private readonly planeWidthPercentage = 0.6;
+  private readonly planeWidthPercentage = 0.4;
 
   constructor() {
     super({
