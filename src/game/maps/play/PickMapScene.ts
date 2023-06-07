@@ -5,7 +5,7 @@ import { RawMap, RawMaps } from "../RawMaps";
 import { ExportedGrid } from "../builder/ExportedGrid";
 import { Position, Size } from "../../../utils";
 import { GameMap } from "./GameMap";
-import { wrap } from "module";
+import { Image, Images } from "../../Images";
 
 export class PickMapScene extends Phaser.Scene {
   private readonly planeWidthPercentage = 0.6;
@@ -21,9 +21,14 @@ export class PickMapScene extends Phaser.Scene {
     this.load.json(...RawMaps[RawMap.Maya]);
     this.load.json(...RawMaps[RawMap.Spiral]);
     this.load.json(...RawMaps[RawMap.Random]);
+
+    this.load.image(...Images[Image.PointerFlat]);
+    this.load.image(...Images[Image.CursorHand]);
   }
 
   create() {
+    this.input.setDefaultCursor("url(assets/cursor_pointerFlat.png), default");
+
     this.createMultiplePreviews();
     this.createButtons();
   }
@@ -80,7 +85,11 @@ export class PickMapScene extends Phaser.Scene {
         size.height / 2,
     };
 
-    const map = new GameMap(this, position, sizeWithoutMargins, grid);
+    const map = new GameMap(this, position, sizeWithoutMargins, grid, {
+      isButton: true,
+      onClick: (map) => this.launchGame(grid),
+    });
+    this.add.existing(map);
   }
 
   private createButtons() {
@@ -97,5 +106,10 @@ export class PickMapScene extends Phaser.Scene {
 
   private goBackToMenu() {
     this.scene.manager.switch(this.scene.key, SceneKey.MainMenu);
+  }
+
+  private launchGame(grid: ExportedGrid) {
+    this.scene.stop();
+    this.scene.manager.start(SceneKey.Game, { grid });
   }
 }

@@ -4,13 +4,14 @@ import { GameParentId } from "./GameParentId";
 import { MainMenuScene } from "./menu/MainMenuScene";
 import { PickMapScene } from "./maps/play/PickMapScene";
 import { BuilderScene } from "./maps/builder/BuilderScene";
+import { GameScene } from "./maps/play/GameScene";
 
 const createGame = (parent: HTMLElement | string) => {
   const config: Phaser.Types.Core.GameConfig = {
     type: Phaser.AUTO,
     width: 1920,
     height: 1080,
-    backgroundColor: 'ffffff',
+    backgroundColor: "ffffff",
     disableContextMenu: true,
     render: {
       antialiasGL: true,
@@ -22,7 +23,7 @@ const createGame = (parent: HTMLElement | string) => {
       //   gravity: { y: 200 },
       // },
     },
-    scene: [StartScene, MainMenuScene, PickMapScene, BuilderScene],
+    scene: [StartScene, MainMenuScene, PickMapScene, BuilderScene, GameScene],
     fps: {
       min: 8,
       target: 16,

@@ -1,39 +1,38 @@
 import { Position, Size } from "../../../utils";
 
-export class GameCell extends Phaser.GameObjects.Container {
+export class GameCell extends Phaser.GameObjects.Rectangle {
   constructor(
     scene: Phaser.Scene,
-    private readonly cellPosition: Position,
-    private readonly cellSize: Size,
-    private readonly isPath = false,
-    private readonly isStart = false,
-    private readonly isEnd = false
+    cellPosition: Position,
+    cellSize: Size,
+    isPath = false,
+    isStart = false,
+    isEnd = false
   ) {
-    super(scene);
+    const getRawColor = () => {
+      if (isPath) {
+        if (isStart) {
+          return "00FF00";
+        }
+        if (isEnd) {
+          return "FF0000";
+        }
+        return "FFFFFF";
+      }
 
-    const rawColor = this.getRawColor();
+      return "DDDDDD";
+    };
+    const rawColor = getRawColor();
     const color = parseInt(rawColor, 16);
-    this.scene.add.rectangle(
+
+    super(
+      scene,
       cellPosition.x,
       cellPosition.y,
       cellSize.width,
       cellSize.height,
       color,
-      1
+      isStart || isEnd ? 0.2 : 1
     );
-  }
-
-  private getRawColor() {
-    if (this.isPath) {
-      if (this.isStart) {
-        return "00FF00";
-      }
-      if (this.isEnd) {
-        return "FF0000";
-      }
-      return "FFFFFF";
-    }
-
-    return "DDDDDD";
   }
 }

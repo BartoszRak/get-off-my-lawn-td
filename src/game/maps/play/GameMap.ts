@@ -1,10 +1,18 @@
-import { Position, Size } from "../../../utils";
+import { wrap } from "module";
+import { Position, Size, isDefined } from "../../../utils";
 import { ExportedCell } from "../builder/ExportedCell";
 import { ExportedGrid } from "../builder/ExportedGrid";
 import { GameCell } from "./GameCell";
+import { Color } from "../../Color";
+
+export interface GameMapOptions<T> {
+  isButton?: boolean;
+  onClick?: (map: T) => void;
+}
 
 export class GameMap extends Phaser.GameObjects.Container {
   private readonly cells: GameCell[];
+  private readonly wrapper: Phaser.GameObjects.Rectangle;
   private readonly columns: number;
   private readonly rows: number;
   private wasStartMarked = false;
@@ -13,18 +21,21 @@ export class GameMap extends Phaser.GameObjects.Container {
     scene: Phaser.Scene,
     private readonly mapPosition: Position,
     private readonly mapSize: Size,
-    exportedGrid: ExportedGrid
+    exportedGrid: ExportedGrid,
+    private readonly options: GameMapOptions<GameMap> = {}
   ) {
     super(scene);
 
     this.columns = exportedGrid.columns;
     this.rows = exportedGrid.rows;
 
-    this.createWrapper();
+    this.wrapper = this.createWrapper(options);
 
-    this.cells = exportedGrid.cells.map((exportedCell, index) =>
-      this.createCell(exportedCell, index)
-    );
+    this.cells = exportedGrid.cells.map((exportedCell, index) => {
+      const cell = this.createCell(exportedCell, index);
+      this.scene.add.existing(cell);
+      return cell;
+    });
   }
 
   private createCell(exportedCell: ExportedCell, index: number) {
@@ -68,8 +79,8 @@ export class GameMap extends Phaser.GameObjects.Container {
     );
   }
 
-  private createWrapper() {
-    this.scene.add
+  private createWrapper({ isButton, onClick }: GameMapOptions<GameMap>) {
+    const wrapper = this.scene.add
       .rectangle(
         this.mapPosition.x,
         this.mapPosition.y,
@@ -78,5 +89,22 @@ export class GameMap extends Phaser.GameObjects.Container {
       )
       .setStrokeStyle(2, parseInt("000000", 16))
       .setOrigin(0.5);
+
+    if (isButton) {
+      wrapper.setInteractive();
+      if (isDefined(onClick)) {
+        wrapper.on(Phaser.Input.Events.POINTER_UP, () => {
+          onClick(this);
+        });
+      }
+      wrapper.on(Phaser.Input.Events.POINTER_OVER, () => {
+        wrapper.setStrokeStyle(2, Color.Success);
+      });
+      wrapper.on(Phaser.Input.Events.POINTER_OUT, () => {
+        wrapper.setStrokeStyle(2, Color.Contour);
+      });
+    }
+
+    return wrapper;
   }
 }

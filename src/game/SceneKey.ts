@@ -3,4 +3,5 @@ export enum SceneKey {
   MainMenu = "main-menu",
   PickMap = "pick-map",
   CreateMap = "create-map",
+  Game = "game",
 }
