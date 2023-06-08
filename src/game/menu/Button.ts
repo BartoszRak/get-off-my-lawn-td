@@ -5,6 +5,7 @@ import { ButtonDefaultSize } from "./ButtonDefaultSize";
 interface ButtonConfig {
   text: string;
   onClick?: () => void;
+  disabled?: boolean;
 }
 
 export class Button extends Phaser.GameObjects.Container {
@@ -13,12 +14,13 @@ export class Button extends Phaser.GameObjects.Container {
 
   constructor(
     scene: Phaser.Scene,
-    { onClick, text }: ButtonConfig,
+    private readonly config: ButtonConfig,
     { x, y }: Position,
     { width, height }: Size = ButtonDefaultSize
   ) {
     super(scene);
 
+    const { onClick, text, disabled } = config;
     const button = this.scene.add
       .image(x, y, Image.GlassPanel)
       .setDisplaySize(width, height)
@@ -53,5 +55,34 @@ export class Button extends Phaser.GameObjects.Container {
 
     this.button = button;
     this.text = buttonText;
+
+    if (disabled) {
+      this.disable();
+    }
+  }
+
+  disable() {
+    console.log('---disable()', this.text)
+    this.disconnectOnClick();
+    this.text.setAlpha(0.2);
+  }
+
+  enable() {
+    console.log('---enable()', this.text)
+    this.connectOnClick();
+    this.text.setAlpha(1);
+  }
+
+  private connectOnClick() {
+    const { onClick } = this.config;
+    if (isDefined(onClick)) {
+      this.button.on(Phaser.Input.Events.POINTER_UP, () => {
+        onClick();
+      });
+    }
+  }
+
+  private disconnectOnClick() {
+    this.button.off(Phaser.Input.Events.POINTER_UP);
   }
 }

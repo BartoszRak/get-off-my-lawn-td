@@ -3,10 +3,13 @@ import { Position, Size, isDefined } from "../../../utils";
 import { BuilderCell } from "./BuilderCell";
 import Graph from "node-dijkstra";
 import { RowsAndColumns } from "./RowsAndColumns";
+import { BuilderGridEvent } from "./BuilderGridEvent";
+import { ExportedGrid } from "./ExportedGrid";
 
 export class BuilderGrid extends Phaser.GameObjects.Container {
   private readonly allCells: BuilderCell[] = [];
   private selectedCells: BuilderCell[] = [];
+  private pathCellIds?: string[];
   private startingCell?: BuilderCell;
   private endingCell?: BuilderCell;
   private draggedOver: BuilderCell[] = [];
@@ -112,20 +115,25 @@ export class BuilderGrid extends Phaser.GameObjects.Container {
     const pathCellIds = Array.isArray(pathResult)
       ? pathResult
       : pathResult.path;
+    console.log("Path:", pathCellIds);
+    this.pathCellIds = pathCellIds;
     this.selectedCells.forEach((specifiedCell) => {
       const shouldBeStaged = pathCellIds.includes(specifiedCell.id);
       if (shouldBeStaged) {
         specifiedCell.stage();
       }
     });
+    this.emit(BuilderGridEvent.ExportAvailable, this.export());
   }
 
   unmarkPath() {
+    this.emit(BuilderGridEvent.ExportUnavailable);
     this.selectedCells.forEach((specifiedCell) => {
       if (specifiedCell.isStaged) {
         specifiedCell.unstage();
       }
     });
+    this.pathCellIds = undefined;
   }
 
   findNeighbours(cell: BuilderCell, restOfCells: BuilderCell[]): BuilderCell[] {
@@ -134,17 +142,18 @@ export class BuilderGrid extends Phaser.GameObjects.Container {
     );
   }
 
-  export() {
-    return {
-      ...this.gridSize,
-      ...this.gridCount,
-      cells: this.allCells.map((specifiedCell) => specifiedCell.export()),
-    };
-  }
-
   reset() {
     this.selectedCells.forEach((specifiedCell) => specifiedCell.deselect());
     this.selectedCells = [];
+  }
+
+  private export(): ExportedGrid {
+    return {
+      ...this.gridSize,
+      ...this.gridCount,
+      pathIds: this.pathCellIds || [],
+      cells: this.allCells.map((specifiedCell) => specifiedCell.export()),
+    };
   }
 
   private connectCellListeners() {

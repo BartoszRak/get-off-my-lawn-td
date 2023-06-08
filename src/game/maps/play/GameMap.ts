@@ -1,9 +1,10 @@
-import { wrap } from "module";
 import { Position, Size, isDefined } from "../../../utils";
 import { ExportedCell } from "../builder/ExportedCell";
 import { ExportedGrid } from "../builder/ExportedGrid";
 import { GameCell } from "./GameCell";
 import { Color } from "../../Color";
+import { CellId } from "../CellId";
+import { sortBy } from "lodash";
 
 export interface GameMapOptions<T> {
   isButton?: boolean;
@@ -16,6 +17,7 @@ export class GameMap extends Phaser.GameObjects.Container {
   private readonly columns: number;
   private readonly rows: number;
   private wasStartMarked = false;
+  private pathIds: CellId[];
 
   constructor(
     scene: Phaser.Scene,
@@ -25,7 +27,9 @@ export class GameMap extends Phaser.GameObjects.Container {
     private readonly options: GameMapOptions<GameMap> = {}
   ) {
     super(scene);
-
+    this.pathIds = exportedGrid.pathIds.map((rawId) =>
+      CellId.fromExisting(rawId)
+    );
     this.columns = exportedGrid.columns;
     this.rows = exportedGrid.rows;
 
@@ -36,6 +40,42 @@ export class GameMap extends Phaser.GameObjects.Container {
       this.scene.add.existing(cell);
       return cell;
     });
+
+    // const curve = new Phaser.Curves.Curve()
+    // curve.
+    // const path = new Phaser.Curves.Path()
+    // const sortedCells = this.cells.sort((prevCell, nextCell) => {
+    //   if prevCell.isStar
+    // })
+    // path.add()
+    this.createPath();
+  }
+
+  private createPath() {
+    const unsortedPathCells = this.cells
+      .filter((specifiedCell) => specifiedCell.isPath)
+      .map((specifiedCell) => {
+        return {
+          cell: specifiedCell,
+          order: this.pathIds.findIndex(
+            (cellId) => cellId.value === specifiedCell.id.value
+          ),
+        };
+      });
+    const sortedPathCells = sortBy(unsortedPathCells, ["order"]);
+    const pathCells = sortedPathCells.map(({ cell }) => cell);
+    const startCell = pathCells[0];
+    const path = new Phaser.Curves.Path(startCell.x, startCell.y);
+    pathCells.forEach((specifiedCell) =>
+      path.lineTo(specifiedCell.x, specifiedCell.y)
+    );
+    const graphics = this.scene.add.graphics({
+      lineStyle: {
+        width: 2,
+        color: Color.LightGrey,
+      },
+    });
+    path.draw(graphics);
   }
 
   private createCell(exportedCell: ExportedCell, index: number) {
@@ -71,6 +111,7 @@ export class GameMap extends Phaser.GameObjects.Container {
     }
     return new GameCell(
       this.scene,
+      new CellId(rowIndex, columnIndex),
       position,
       size,
       exportedCell.isPath,

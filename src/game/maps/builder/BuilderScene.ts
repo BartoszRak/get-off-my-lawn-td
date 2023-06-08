@@ -3,9 +3,13 @@ import { SceneKey } from "../../SceneKey";
 import { Button } from "../../menu/Button";
 import { BuilderGrid } from "./BuilderGrid";
 import { saveAs } from "file-saver";
+import { ExportedGrid } from "./ExportedGrid";
+import { BuilderGridEvent } from "./BuilderGridEvent";
+import { isDefined } from "../../../utils";
 
 export class BuilderScene extends Phaser.Scene {
   private readonly planeWidthPercentage = 0.4;
+  private gridToExport?: ExportedGrid;
 
   constructor() {
     super({
@@ -30,12 +34,23 @@ export class BuilderScene extends Phaser.Scene {
         rows: 24,
       }
     );
-    this.createButtons(grid);
+    const { exportButton } = this.createButtons(grid);
+    grid.on(
+      BuilderGridEvent.ExportAvailable,
+      (newGridToExport: ExportedGrid) => {
+        this.gridToExport = newGridToExport;
+        exportButton.enable();
+      }
+    );
+    grid.on(BuilderGridEvent.ExportUnavailable, () => {
+      exportButton.disable();
+      this.gridToExport = undefined;
+    });
   }
 
   private createButtons(grid: BuilderGrid) {
     const { width, height } = this.scale;
-    new Button(
+    const backButton = new Button(
       this,
       {
         text: "BACK",
@@ -44,7 +59,7 @@ export class BuilderScene extends Phaser.Scene {
       { x: 100, y: 50 },
       undefined
     );
-    new Button(
+    const resetButton = new Button(
       this,
       {
         text: "RESET",
@@ -56,21 +71,14 @@ export class BuilderScene extends Phaser.Scene {
       },
       undefined
     );
-    new Button(
+    const exportButton = new Button(
       this,
       {
         text: "EXPORT",
         onClick: () => {
-          console.log("--- export");
-          const exportedGrid = grid.export();
-          const stringifiedExportedGrid = JSON.stringify(exportedGrid);
-          console.warn("EXPORTED GRID:", stringifiedExportedGrid);
-          const blob = new Blob([stringifiedExportedGrid], {
-            type: "application/json;charset=utf-8",
-          });
-          saveAs(blob, "exported-map");
-          grid.deselectAllCells();
+          this.executeExport(grid);
         },
+        disabled: true,
       },
       {
         x: width - 100, // - ButtonDefaultSize.width,
@@ -78,6 +86,26 @@ export class BuilderScene extends Phaser.Scene {
       },
       undefined
     );
+
+    return {
+      backButton,
+      resetButton,
+      exportButton,
+    };
+  }
+
+  private executeExport(grid: BuilderGrid) {
+    if (!isDefined(this.gridToExport)) {
+      return;
+    }
+    console.log("--- export");
+    const stringifiedExportedGrid = JSON.stringify(this.gridToExport);
+    console.warn("EXPORTED GRID:", stringifiedExportedGrid);
+    const blob = new Blob([stringifiedExportedGrid], {
+      type: "application/json;charset=utf-8",
+    });
+    saveAs(blob, "exported-map");
+    grid.deselectAllCells();
   }
 
   private goBackToMenu() {

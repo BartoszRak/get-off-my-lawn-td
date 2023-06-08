@@ -18,9 +18,10 @@ export class PickMapScene extends Phaser.Scene {
   }
 
   preload() {
-    this.load.json(...RawMaps[RawMap.Maya]);
-    this.load.json(...RawMaps[RawMap.Spiral]);
-    this.load.json(...RawMaps[RawMap.Random]);
+    // this.load.json(...RawMaps[RawMap.Maya]);
+    // this.load.json(...RawMaps[RawMap.Spiral]);
+    // this.load.json(...RawMaps[RawMap.Random]);
+    this.load.json(...RawMaps[RawMap.Weirdo]);
 
     this.load.image(...Images[Image.PointerFlat]);
     this.load.image(...Images[Image.CursorHand]);
@@ -48,9 +49,10 @@ export class PickMapScene extends Phaser.Scene {
       .setStrokeStyle(1, parseInt("000000", 16));
 
     const parsedMaps: ExportedGrid[] = [
-      this.cache.json.get(RawMap.Maya),
-      this.cache.json.get(RawMap.Spiral),
-      this.cache.json.get(RawMap.Random),
+      // this.cache.json.get(RawMap.Maya),
+      // this.cache.json.get(RawMap.Spiral),
+      // this.cache.json.get(RawMap.Random),
+      this.cache.json.get(RawMap.Weirdo),
     ];
     parsedMaps.forEach((specifiedParsedMap, index) => {
       this.createPreview(specifiedParsedMap, wrapper, index);

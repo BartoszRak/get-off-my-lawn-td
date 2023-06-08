@@ -5,4 +5,7 @@ export enum Color {
   Error = createColorFromRaw("FF0000"),
   Contour = createColorFromRaw("000000"),
   Background = createColorFromRaw("FFFFFF"),
+  LightGrey = createColorFromRaw("EEEEEE"),
+  Grey = createColorFromRaw("DDDDDD"),
+  DarkGrey = createColorFromRaw("CCCCCC"),
 }

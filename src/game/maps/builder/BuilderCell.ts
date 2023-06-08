@@ -1,5 +1,6 @@
 import { Position, Size, isDefined } from "../../../utils";
 import { BuilderCellColor } from "./BuilderCellColor";
+import { ExportedCell } from "./ExportedCell";
 
 export class BuilderCell extends Phaser.GameObjects.Container {
   readonly id: string;
@@ -68,9 +69,12 @@ export class BuilderCell extends Phaser.GameObjects.Container {
     );
   }
 
-  export() {
+  export(): ExportedCell {
     const isPath = this.isStaged;
     return {
+      id: this.id,
+      column: this.column,
+      row: this.row,
       ...this.cellPosition,
       ...this.cellSize,
       isEntry: isPath ? this.isEntry : false,
@@ -146,7 +150,7 @@ export class BuilderCell extends Phaser.GameObjects.Container {
     this.cell.setFillStyle(parseInt(BuilderCellColor.Common, 16), 0);
     this.text?.destroy(true);
     this.text = undefined;
-    this.unstage()
+    this.unstage();
   }
 
   highlight() {

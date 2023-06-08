@@ -1,29 +1,31 @@
 import { Position, Size } from "../../../utils";
+import { Color } from "../../Color";
+import { CellId } from "../CellId";
 
 export class GameCell extends Phaser.GameObjects.Rectangle {
   constructor(
     scene: Phaser.Scene,
+    public readonly id: CellId,
     cellPosition: Position,
     cellSize: Size,
-    isPath = false,
-    isStart = false,
-    isEnd = false
+    public readonly isPath = false,
+    public readonly isStart = false,
+    public readonly isEnd = false
   ) {
-    const getRawColor = () => {
+    const getColor = () => {
       if (isPath) {
         if (isStart) {
-          return "00FF00";
+          return Color.Success;
         }
         if (isEnd) {
-          return "FF0000";
+          return Color.Error;
         }
-        return "FFFFFF";
+        return Color.Background;
       }
 
-      return "DDDDDD";
+      return Color.Grey;
     };
-    const rawColor = getRawColor();
-    const color = parseInt(rawColor, 16);
+    const color = getColor();
 
     super(
       scene,

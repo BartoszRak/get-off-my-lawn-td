@@ -5,4 +5,5 @@ import { RowsAndColumns } from "./RowsAndColumns";
 export type ExportedGrid = Size &
   RowsAndColumns & {
     cells: ExportedCell[];
+    pathIds: string[];
   };
