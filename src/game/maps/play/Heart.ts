@@ -20,6 +20,7 @@ export class Heart extends Phaser.GameObjects.Image {
       filledUp ? Image.PaperHeartFull : Image.PaperHeart
     );
     this.setDisplaySize(width, height);
+    scene.add.existing(this)
   }
 
   fillUp() {

@@ -29,9 +29,8 @@ export class HeartsBar extends Phaser.GameObjects.Rectangle {
 
     this.currentLives = maxLives;
     this.hearts = this.createHearts(heartSize);
-    this.hearts.forEach((specifiedHeart) =>
-      this.scene.add.existing(specifiedHeart)
-    );
+
+    scene.add.existing(this)
   }
 
   setLives(count: number) {

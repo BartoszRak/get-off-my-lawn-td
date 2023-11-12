@@ -60,9 +60,6 @@ export class GameScene extends Phaser.Scene {
       { width: barWidth },
       10
     );
-    setTimeout(() => {
-      this.heartsBar.setLives(15)
-    }, (5000));
     this.wavesBar = new WavesBar(
       this,
       {
@@ -75,8 +72,6 @@ export class GameScene extends Phaser.Scene {
 
     console.log("--- create game scene", data);
     this.add.existing(this.map);
-    this.add.existing(this.heartsBar);
-    this.add.existing(this.wavesBar);
   }
 
   update() {}

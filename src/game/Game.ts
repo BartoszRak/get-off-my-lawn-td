@@ -19,6 +19,9 @@ const createGame = (parent: HTMLElement | string) => {
     },
     physics: {
       default: "arcade",
+      arcade: {
+        debug: true
+      }
       // arcade: {
       //   gravity: { y: 200 },
       // },

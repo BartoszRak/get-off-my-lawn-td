@@ -1,17 +1,40 @@
 import { Position, Size } from "../../../utils";
+import { Color, RawColor } from "../../Color";
 
-export class WaveTile extends Phaser.GameObjects.Rectangle {
+export class WaveTile extends Phaser.GameObjects.Group {
   private readonly text: Phaser.GameObjects.Text;
+  private readonly rectangle: Phaser.GameObjects.Rectangle;
 
   constructor(
     scene: Phaser.Scene,
     { x, y }: Position,
     { width, height }: Size,
-    name: string
+    private waveName: string
   ) {
-    super(scene, x, y, width, height);
+    const rectangle = new Phaser.GameObjects.Rectangle(
+      scene,
+      x,
+      y,
+      width,
+      height,
+      Color.Success
+    ).setStrokeStyle(1, Color.Contour);
+    const text = new Phaser.GameObjects.Text(scene, x, y, waveName, {
+      color: RawColor.Contour,
+      fontSize: 20,
+    }).setOrigin(0.5);
+    super(scene, [rectangle, text]);
 
-    this.text = new Phaser.GameObjects.Text(scene, x, y, name, {});
-    this.scene.add.existing(this.text);
+    this.rectangle = rectangle;
+    this.text = text;
+
+    scene.add.existing(this);
+    scene.add.existing(rectangle);
+    scene.add.existing(text);
+  }
+
+  setMask(...args: Parameters<Phaser.GameObjects.Text['setMask']>) {
+    this.text.setMask(...args)
+    this.rectangle.setMask(...args)
   }
 }
