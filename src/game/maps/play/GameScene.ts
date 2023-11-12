@@ -5,10 +5,12 @@ import { ExportedGrid } from "../builder/ExportedGrid";
 import { GameMap } from "./GameMap";
 import { GameSceneData } from "./GameSceneData";
 import { HeartsBar } from "./HeartsBar";
+import { WavesBar } from "./WaveBar";
 
 export class GameScene extends Phaser.Scene {
   private map!: GameMap;
   private heartsBar!: HeartsBar;
+  private wavesBar!: WavesBar;
   private grid!: ExportedGrid;
 
   constructor(...data: any) {
@@ -43,6 +45,7 @@ export class GameScene extends Phaser.Scene {
     console.log("--- preload game scene");
     console.log("--- load paper", ...Images[Image.PaperHeart]);
     this.load.image(...Images[Image.PaperHeart]);
+    this.load.image(...Images[Image.PaperHeartFull]);
   }
 
   create(data: GameSceneData) {
@@ -57,10 +60,23 @@ export class GameScene extends Phaser.Scene {
       { width: barWidth },
       10
     );
+    setTimeout(() => {
+      this.heartsBar.setLives(15)
+    }, (5000));
+    this.wavesBar = new WavesBar(
+      this,
+      {
+        x: width - barWidth / 2 - 20,
+        y: 120,
+      },
+      { width: barWidth, height: 40 },
+      3
+    );
 
     console.log("--- create game scene", data);
     this.add.existing(this.map);
     this.add.existing(this.heartsBar);
+    this.add.existing(this.wavesBar);
   }
 
   update() {}

@@ -1,10 +1,10 @@
 import { Position, Size } from "../../../utils";
 import { Color } from "../../Color";
-import { Image, Images } from "../../Images";
+import { Heart } from "./Heart";
 
 export class HeartsBar extends Phaser.GameObjects.Rectangle {
-  private readonly hearts: Phaser.GameObjects.Image[];
-  private currentLives: number;
+  private readonly hearts: Heart[];
+  private currentLives: number = 10;
   private readonly margin: number;
 
   constructor(
@@ -29,24 +29,96 @@ export class HeartsBar extends Phaser.GameObjects.Rectangle {
 
     this.currentLives = maxLives;
     this.hearts = this.createHearts(heartSize);
+    this.hearts.forEach((specifiedHeart) =>
+      this.scene.add.existing(specifiedHeart)
+    );
   }
 
-  setLives(newLives: number) {
-    this.currentLives = newLives;
+  setLives(count: number) {
+    if (this.isLiveCountValid(count)) {
+      this.currentLives = count;
+    } else {
+      const validCount = this.createValidLiveCountAndLog(
+        this.currentLives,
+        count
+      );
+      this.currentLives = validCount;
+    }
+    this.refreshHearts();
+  }
+
+  decreaseLives(count: number) {
+    const newLives = this.currentLives - count;
+    if (this.isLiveCountValid(newLives)) {
+      this.currentLives = newLives;
+    } else {
+      this.currentLives = this.createValidLiveCountAndLog(
+        this.currentLives,
+        newLives
+      );
+    }
+    this.refreshHearts();
+  }
+
+  increaseLives(count: number) {
+    const newLives = this.currentLives + count;
+    if (this.isLiveCountValid(newLives)) {
+      this.currentLives = newLives;
+    } else {
+      this.currentLives = this.createValidLiveCountAndLog(
+        this.currentLives,
+        newLives
+      );
+    }
+    this.refreshHearts();
+  }
+
+  private isLiveCountValid(count: number) {
+    return count >= 0 && count <= this.maxLives;
+  }
+
+  private createValidLiveCountAndLog(
+    currentCount: number,
+    invalidCount: number
+  ) {
+    const validCount = this.createValidLiveCount(currentCount, invalidCount);
+    const message = `Setting lives to ${validCount} instead of ${invalidCount} which is invalid lives count.`;
+    const error = new Error(message);
+    console.warn(error);
+
+    return validCount;
+  }
+
+  private createValidLiveCount(currentCount: number, invalidCount: number) {
+    if (invalidCount > currentCount) {
+      return this.maxLives;
+    }
+    if (invalidCount < currentCount) {
+      return 0;
+    }
+    return currentCount;
+  }
+
+  private refreshHearts() {
+    this.hearts.forEach((specifiedHeart, index) => {
+      this.actOnHeart(specifiedHeart, index);
+    });
   }
 
   private createHearts(heartSize: number) {
     const hearts = new Array(this.maxLives).fill(null).map((_, index) => {
-      const x =
-        this.x +
-        index * heartSize -
-        this.width / 2 +
-        heartSize / 2 +
-        this.margin;
-      return this.scene.add
-        .image(x, this.y, Image.PaperHeart)
-        .setDisplaySize(heartSize, heartSize);
+      const x = this.x + (index + 1) * heartSize - this.width / 2;
+      return new Heart(
+        this.scene,
+        { x, y: this.y - this.margin },
+        heartSize,
+        index < this.currentLives
+      );
     });
     return hearts;
+  }
+
+  private actOnHeart(heart: Heart, index: number) {
+    index >= this.currentLives ? heart.unfill() : heart.fillUp();
   }
 }
