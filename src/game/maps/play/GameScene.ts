@@ -5,7 +5,7 @@ import { ExportedGrid } from "../builder/ExportedGrid";
 import { GameMap } from "./GameMap";
 import { GameSceneData } from "./GameSceneData";
 import { HeartsBar } from "./HeartsBar";
-import { WavesBar } from "./WaveBar";
+import { WavesBar } from "./WavesBar";
 
 export class GameScene extends Phaser.Scene {
   private map!: GameMap;
@@ -69,10 +69,13 @@ export class GameScene extends Phaser.Scene {
       { width: barWidth, height: 40 },
       3
     );
+    this.wavesBar.start();
 
     console.log("--- create game scene", data);
     this.add.existing(this.map);
   }
 
-  update() {}
+  update() {
+    // console.log(`### GameScene Update (${Date.now()})`)
+  }
 }

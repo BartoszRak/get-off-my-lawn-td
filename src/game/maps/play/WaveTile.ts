@@ -9,7 +9,8 @@ export class WaveTile extends Phaser.GameObjects.Group {
     scene: Phaser.Scene,
     { x, y }: Position,
     { width, height }: Size,
-    private waveName: string
+    private waveName: string,
+    private index: number
   ) {
     const rectangle = new Phaser.GameObjects.Rectangle(
       scene,
@@ -18,12 +19,16 @@ export class WaveTile extends Phaser.GameObjects.Group {
       width,
       height,
       Color.Success
-    ).setStrokeStyle(1, Color.Contour);
+    )
+      .setStrokeStyle(1, Color.Contour)
+      .setName(`${waveName}Rectangle`);
     const text = new Phaser.GameObjects.Text(scene, x, y, waveName, {
       color: RawColor.Contour,
       fontSize: 20,
-    }).setOrigin(0.5);
-    super(scene, [rectangle, text]);
+    })
+      .setOrigin(0.5)
+      .setName(`${waveName}Text`);
+    super(scene, [rectangle, text], { name: waveName });
 
     this.rectangle = rectangle;
     this.text = text;
@@ -33,8 +38,19 @@ export class WaveTile extends Phaser.GameObjects.Group {
     scene.add.existing(text);
   }
 
-  setMask(...args: Parameters<Phaser.GameObjects.Text['setMask']>) {
-    this.text.setMask(...args)
-    this.rectangle.setMask(...args)
+  getDetails() {
+    return {
+      name: this.waveName,
+      index: this.index,
+    };
+  }
+
+  getReactangle() {
+    return this.rectangle;
+  }
+
+  setMask(...args: Parameters<Phaser.GameObjects.Text["setMask"]>) {
+    this.text.setMask(...args);
+    this.rectangle.setMask(...args);
   }
 }
