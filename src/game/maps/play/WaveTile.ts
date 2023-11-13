@@ -4,6 +4,7 @@ import { Color, RawColor } from "../../Color";
 export class WaveTile extends Phaser.GameObjects.Group {
   private readonly text: Phaser.GameObjects.Text;
   private readonly rectangle: Phaser.GameObjects.Rectangle;
+  private collider?: Phaser.Physics.Arcade.Collider;
 
   constructor(
     scene: Phaser.Scene,
@@ -52,5 +53,20 @@ export class WaveTile extends Phaser.GameObjects.Group {
   setMask(...args: Parameters<Phaser.GameObjects.Text["setMask"]>) {
     this.text.setMask(...args);
     this.rectangle.setMask(...args);
+  }
+
+  attachCollider(collider: Phaser.Physics.Arcade.Collider) {
+    this.collider = collider;
+  }
+
+  destroyCollider() {
+    if (this.collider) {
+      this.collider.destroy();
+      this.collider = undefined;
+    }
+  }
+
+  getWrapper() {
+    return this.rectangle;
   }
 }

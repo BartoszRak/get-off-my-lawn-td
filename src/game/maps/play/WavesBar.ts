@@ -1,15 +1,26 @@
 import { flatten } from "lodash";
-import { Position, Size } from "../../../utils";
+import { Position, Size, isDefined } from "../../../utils";
 import { Color } from "../../Color";
 import { WaveTile } from "./WaveTile";
 
+export interface WavesBarCallbacks {
+  onWaveChanged: (wave: WaveTile) => void;
+}
+
 export class WavesBar extends Phaser.GameObjects.Rectangle {
-  private readonly tiles: WaveTile[];
+  private tiles: WaveTile[];
   // private readonly tilesGroup: Phaser.GameObjects.Group;
+  private readonly tilesMask: Phaser.Display.Masks.GeometryMask;
+
   private readonly tilesPhysicsGroup: Phaser.Physics.Arcade.Group;
+  private readonly pointerPhysics: Phaser.GameObjects.Rectangle;
+
   private currentTile: WaveTile;
   private readonly pointer: Phaser.GameObjects.Rectangle;
-  private readonly pointerPhysics: Phaser.GameObjects.Rectangle;
+
+  private readonly tilesPerBatch = 10;
+  private tilesMargin = 1;
+  private readonly tileSpeed = 100;
 
   constructor(
     scene: Phaser.Scene,
@@ -17,7 +28,8 @@ export class WavesBar extends Phaser.GameObjects.Rectangle {
     size: Size,
     private readonly startWave = 0,
     private readonly maxWaves = 100,
-    private readonly margin = 10
+    private readonly margin = 10,
+    private readonly callbacks: Partial<WavesBarCallbacks> = {}
   ) {
     const { x, y } = position;
     const { width, height } = size;
@@ -31,38 +43,32 @@ export class WavesBar extends Phaser.GameObjects.Rectangle {
     this.setStrokeStyle(3, Color.Contour);
     scene.add.existing(this);
 
-    // Tiles
-    this.tiles = this.createTiles(this.startWave, this.maxWaves);
-    this.currentTile = this.tiles[this.startWave];
-
-    // Pointer
+    // 1. Pointer
     this.pointer = this.createPointer();
     this.pointerPhysics = this.scene.physics.add.existing(this.pointer);
 
-    // Tiles mask
-    const mask = this.createMask();
-    this.tiles.forEach((specifiedTile) => {
-      specifiedTile.setMask(mask);
+    // 2. Tiles mask & physics
+    this.tilesMask = this.createMask();
+    this.tilesPhysicsGroup = this.scene.physics.add.group([], {
+      collideWorldBounds: false,
+      name: "WaveTilesGroup",
     });
 
-    // Tiles collisions
-    this.tilesPhysicsGroup = scene.physics.add.group(
-      flatten(
-        this.tiles.map((specifiedTile) => specifiedTile.children.entries)
-      ),
-      { collideWorldBounds: false, name: "WaveTilesGroup" }
-    );
-    this.tiles.forEach((specifiedTile) => {
-      this.scene.physics.add.overlap(
-        this.pointerPhysics,
-        specifiedTile,
-        (...args) => this.onOverlap(...args)
-      );
-    });
+    // 3. Tiles
+    this.tiles = this.createTiles(3, this.startWave, -this.startWave);
+    this.currentTile = this.tiles[0];
+  }
+
+  private setCurrentWave(wave: WaveTile) {
+    this.currentTile = wave;
+    const { onWaveChanged } = this.callbacks;
+    if (onWaveChanged) {
+      onWaveChanged(wave);
+    }
   }
 
   start() {
-    this.tilesPhysicsGroup.setVelocityX(-50);
+    this.tilesPhysicsGroup.setVelocityX(-this.tileSpeed);
   }
 
   stop() {
@@ -87,10 +93,50 @@ export class WavesBar extends Phaser.GameObjects.Rectangle {
     if (!foundWave) {
       return;
     }
-    if (foundWave.name !== this.currentTile.name) {
+    if (foundWave.name === this.currentTile.name) {
       return;
     }
-    this.currentTile = foundWave;
+    this.setCurrentWave(foundWave);
+    this.ensureTiles();
+  }
+
+  private ensureTiles() {
+    const minIndex = this.currentTile.getDetails().index - this.tilesMargin;
+    const outdatedTiles = this.tiles.filter(
+      (specifiedTile, index) => specifiedTile.getDetails().index < minIndex
+    );
+    if (outdatedTiles.length) {
+      outdatedTiles.forEach((specifiedOutdatedTile) => {
+        specifiedOutdatedTile.destroyCollider();
+        specifiedOutdatedTile.destroy(true, true);
+      });
+      const outdatedIndexes = outdatedTiles.map(
+        (specifiedOutdatedTile) => specifiedOutdatedTile.getDetails().index
+      );
+      this.tiles = this.tiles.filter(
+        (specifiedTile) =>
+          !outdatedIndexes.includes(specifiedTile.getDetails().index)
+      );
+    }
+    const additionalTiles = this.tiles.filter(
+      (specifiedTile, index) =>
+        specifiedTile.getDetails().index > this.currentTile.getDetails().index
+    );
+    const missingTilesCount = this.tilesMargin - additionalTiles.length;
+    if (missingTilesCount > 0) {
+      console.log("--- tiles missing: ", missingTilesCount);
+      const lastTile =
+        additionalTiles[additionalTiles.length - 1] || this.currentTile;
+      const newTilesStartingIndex = lastTile.getDetails().index + 1;
+      const newTiles = this.createTiles(
+        missingTilesCount,
+        newTilesStartingIndex,
+        -this.currentTile.getDetails().index,
+        lastTile.getWrapper().x + lastTile.getWrapper().width
+      );
+      this.tiles = [...this.tiles, ...newTiles];
+      this.start()
+    }
   }
 
   private findWaveByName(name: string) {
@@ -110,18 +156,49 @@ export class WavesBar extends Phaser.GameObjects.Rectangle {
     ).createGeometryMask();
   }
 
-  private createTiles(start: number, max: number) {
-    const shift = start * this.width;
-    return new Array(max).fill(null).map((_, index) => {
-      const name = `Wave no. ${index + 1}`;
-      return new WaveTile(
+  private createTiles(
+    count: number,
+    startIndex: number,
+    positionShiftIndex = 0,
+    x?: number
+  ) {
+    const createdTiles = new Array(count).fill(null).map((_, index) => {
+      const adjustedIndex = index + startIndex;
+      const positionIndex = adjustedIndex + positionShiftIndex;
+      const name = `Wave no. ${adjustedIndex + 1}`;
+      const initialX = this.x + positionIndex * this.width;
+      const preparedX = isDefined(x) ? x : initialX;
+      const wave = new WaveTile(
         this.scene,
-        { x: this.x + index * this.width - shift, y: this.y },
+        { x: preparedX, y: this.y },
         { width: this.width, height: this.height },
         name,
-        index
+        adjustedIndex
       );
+      this.applyPhysicsAndMask(wave);
+
+      return wave;
     });
+    console.info(
+      `# Created tiles: [${createdTiles
+        .map((specifiedTile) => specifiedTile.getDetails().name)
+        .join(", ")}]`
+    );
+    return createdTiles;
+  }
+
+  private applyPhysicsAndMask(wave: WaveTile) {
+    // Mask
+    wave.setMask(this.tilesMask);
+    // Collisions
+    this.tilesPhysicsGroup.addMultiple(wave.children.entries);
+
+    const collider = this.scene.physics.add.overlap(
+      this.pointerPhysics,
+      wave,
+      (...args) => this.onOverlap(...args)
+    );
+    wave.attachCollider(collider);
   }
 
   private createPointer() {

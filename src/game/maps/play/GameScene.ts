@@ -1,10 +1,12 @@
 import { Position, Size } from "../../../utils";
+import { RawColor } from "../../Color";
 import { Image, Images } from "../../Images";
 import { SceneKey } from "../../SceneKey";
 import { ExportedGrid } from "../builder/ExportedGrid";
 import { GameMap } from "./GameMap";
 import { GameSceneData } from "./GameSceneData";
 import { HeartsBar } from "./HeartsBar";
+import { WaveTile } from "./WaveTile";
 import { WavesBar } from "./WavesBar";
 
 export class GameScene extends Phaser.Scene {
@@ -12,6 +14,7 @@ export class GameScene extends Phaser.Scene {
   private heartsBar!: HeartsBar;
   private wavesBar!: WavesBar;
   private grid!: ExportedGrid;
+  private wavesInfo!: Phaser.GameObjects.Text;
 
   constructor(...data: any) {
     console.log("--- construct game scene", data);
@@ -51,6 +54,7 @@ export class GameScene extends Phaser.Scene {
   create(data: GameSceneData) {
     const { width } = this.scale;
     const barWidth = 400;
+    const barHeight = 40;
     this.heartsBar = new HeartsBar(
       this,
       {
@@ -60,14 +64,27 @@ export class GameScene extends Phaser.Scene {
       { width: barWidth },
       10
     );
+    const startWaveIndex = 3;
     this.wavesBar = new WavesBar(
       this,
       {
         x: width - barWidth / 2 - 20,
         y: 120,
       },
-      { width: barWidth, height: 40 },
-      3
+      { width: barWidth, height: barHeight },
+      startWaveIndex,
+      100,
+      undefined,
+      { onWaveChanged: (...args) => this.onWaveChanged(...args) }
+    );
+    this.wavesInfo = this.add.text(
+      width - barWidth / 2 - 20,
+      120 + 1.5 * barHeight,
+      this.createWaveInfoMessage(startWaveIndex),
+      {
+        fontSize: 25,
+        color: RawColor.Contour,
+      }
     );
     this.wavesBar.start();
 
@@ -77,5 +94,14 @@ export class GameScene extends Phaser.Scene {
 
   update() {
     // console.log(`### GameScene Update (${Date.now()})`)
+  }
+
+  private createWaveInfoMessage(waveIndex: number) {
+    return `Wave: ${waveIndex + 1}`;
+  }
+
+  private onWaveChanged(wave: WaveTile) {
+    const text = this.createWaveInfoMessage(wave.getDetails().index);
+    this.wavesInfo.setText(text);
   }
 }
