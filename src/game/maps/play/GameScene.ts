@@ -126,6 +126,7 @@ export class GameScene extends Phaser.Scene {
             base: Image.BunkerTowerBase,
             barrel: Image.BunkerTowerBarrel,
           },
+          cost: 100,
         },
         {
           name: "Bunker2",
@@ -133,6 +134,7 @@ export class GameScene extends Phaser.Scene {
             base: Image.BunkerTowerBase,
             barrel: Image.BunkerTowerBarrel,
           },
+          cost: 200,
         },
         {
           name: "Bunker3",
@@ -140,6 +142,7 @@ export class GameScene extends Phaser.Scene {
             base: Image.BunkerTowerBase,
             barrel: Image.BunkerTowerBarrel,
           },
+          cost: 800,
         },
         {
           name: "Bunker4",
@@ -147,6 +150,7 @@ export class GameScene extends Phaser.Scene {
             base: Image.BunkerTowerBase,
             barrel: Image.BunkerTowerBarrel,
           },
+          cost: 1200,
         },
       ]
     );

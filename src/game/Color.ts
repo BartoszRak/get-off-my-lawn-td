@@ -8,6 +8,7 @@ export enum RawColor {
   LightGrey = "EEEEEE",
   Grey = "DDDDDD",
   DarkGrey = "CCCCCC",
+  LightText = "FFFFFF"
 }
 
 export enum Color {

@@ -7,6 +7,10 @@ export interface PickTowerOptions {
   towersInRow: number;
 }
 
+const defaultOptions: PickTowerOptions = {
+  towersInRow: 3,
+};
+
 export type PickTowerFullOptions = PickTowerOptions & {
   tileSize: number;
 };
@@ -21,14 +25,16 @@ export class PickTower extends Phaser.GameObjects.Group {
     private readonly position: Position,
     private readonly size: Size,
     towers: TowerTemplate[],
-    options: PickTowerOptions = {
-      towersInRow: 3,
-    }
+    options: Partial<PickTowerOptions> = defaultOptions
   ) {
     super(scene);
-    this.options = {
+    const fullOptions: PickTowerOptions = {
       ...options,
-      tileSize: size.width / options.towersInRow,
+      ...defaultOptions,
+    };
+    this.options = {
+      ...fullOptions,
+      tileSize: size.width / fullOptions.towersInRow,
     };
     this.wrapper = this.createWrapper();
     this.tiles = this.createTowerTiles(towers);

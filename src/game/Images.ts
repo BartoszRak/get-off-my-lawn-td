@@ -27,10 +27,10 @@ export const Images: Record<string, [string, string]> = {
   [Image.StopFull]: [Image.StopFull, "./assets/stop-full.png"],
   [Image.BunkerTowerBase]: [
     Image.BunkerTowerBase,
-    "./assets/towers/bunker/bunker-tower-base.png",
+    "./assets/towers/bunker/bunker-base.png",
   ],
   [Image.BunkerTowerBarrel]: [
     Image.BunkerTowerBarrel,
-    "./assets/towers/bunker/bunker-tower-barrel.png",
+    "./assets/towers/bunker/bunker-barrel.png",
   ],
 };

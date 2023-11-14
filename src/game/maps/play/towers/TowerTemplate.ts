@@ -8,4 +8,5 @@ export interface TowerImages {
 export interface TowerTemplate {
   name: string;
   images: TowerImages;
+  cost: number
 }
