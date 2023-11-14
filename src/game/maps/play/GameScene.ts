@@ -102,7 +102,7 @@ export class GameScene extends Phaser.Scene {
       { onWaveChanged: (...args) => this.onWaveChanged(...args) }
     );
     this.wavesInfo = this.add.text(
-      width - barWidth / 2 - 20,
+      width - barWidth / 4 - 20,
       120 + 1.5 * barHeight,
       this.createWaveInfoMessage(startWaveIndex),
       {

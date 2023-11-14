@@ -7,7 +7,11 @@ const hue2rgb = (p: number, q: number, t: number) => {
   return p;
 };
 
-export const hslToRgb = (h: number, s: number, l: number) => {
+export const hslToRgb = (
+  h: number,
+  s: number,
+  l: number
+): [number, number, number] => {
   var r, g, b;
 
   if (s == 0) {

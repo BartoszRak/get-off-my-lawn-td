@@ -1,5 +1,4 @@
 import { Position, Size } from "../../../utils";
-import { Color } from "../../Color";
 import { Image } from "../../Images";
 
 export interface PlayAndStopCallbacks {

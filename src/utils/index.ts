@@ -4,3 +4,4 @@ export type { Position } from "./position";
 export type { PositionAndSize } from "./positionAndSize";
 export { hslToRgb } from "./hslToRgb";
 export { numberToColorHsl } from "./numberToColorHsl";
+export { rgbIntToHex } from "./rgbIntToHex";

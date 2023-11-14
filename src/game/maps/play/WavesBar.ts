@@ -1,5 +1,11 @@
 import { flatten } from "lodash";
-import { Position, Size, isDefined } from "../../../utils";
+import {
+  Position,
+  Size,
+  isDefined,
+  numberToColorHsl,
+  rgbIntToHex,
+} from "../../../utils";
 import { Color } from "../../Color";
 import { WaveTile } from "./WaveTile";
 
@@ -27,8 +33,8 @@ export class WavesBar extends Phaser.GameObjects.Rectangle {
     position: Position,
     size: Size,
     private readonly startWave = 0,
-    private readonly maxWaves = 100,
-    private readonly margin = 10,
+    private readonly maxWaves = 10,
+    margin = 10,
     private readonly callbacks: Partial<WavesBarCallbacks> = {}
   ) {
     const { x, y } = position;
@@ -57,6 +63,8 @@ export class WavesBar extends Phaser.GameObjects.Rectangle {
     // 3. Tiles
     this.tiles = this.createTiles(3, this.startWave, -this.startWave);
     this.currentTile = this.tiles[0];
+
+    this.pointer.setDepth(10);
   }
 
   private setCurrentWave(wave: WaveTile) {
@@ -135,7 +143,7 @@ export class WavesBar extends Phaser.GameObjects.Rectangle {
         lastTile.getWrapper().x + lastTile.getWrapper().width
       );
       this.tiles = [...this.tiles, ...newTiles];
-      this.start()
+      this.start();
     }
   }
 
@@ -173,7 +181,8 @@ export class WavesBar extends Phaser.GameObjects.Rectangle {
         { x: preparedX, y: this.y },
         { width: this.width, height: this.height },
         name,
-        adjustedIndex
+        adjustedIndex,
+        parseInt(rgbIntToHex(numberToColorHsl(adjustedIndex)), 16)
       );
       this.applyPhysicsAndMask(wave);
 
@@ -203,16 +212,18 @@ export class WavesBar extends Phaser.GameObjects.Rectangle {
 
   private createPointer() {
     const width = 2;
-    const height = this.height / 2;
+    const height = this.height / 4;
 
     const rectangle = new Phaser.GameObjects.Rectangle(
       this.scene,
       this.x,
-      this.y,
+      this.y-height,
       width,
       height,
-      Color.Error
-    ).setName("WaveBarPointer");
+      Color.Contour
+    )
+      .setName("WaveBarPointer")
+      .setOrigin(0.5, 1);
     this.scene.add.existing(rectangle);
     return rectangle;
   }
