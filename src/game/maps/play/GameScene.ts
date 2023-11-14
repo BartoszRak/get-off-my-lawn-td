@@ -9,6 +9,7 @@ import { HeartsBar } from "./HeartsBar";
 import { PlayAndStop } from "./PlayAndStop";
 import { WaveTile } from "./WaveTile";
 import { WavesBar } from "./WavesBar";
+import { PickTower } from "./towers/PickTower";
 
 export class GameScene extends Phaser.Scene {
   private map!: GameMap;
@@ -17,6 +18,8 @@ export class GameScene extends Phaser.Scene {
   private grid!: ExportedGrid;
   private wavesInfo!: Phaser.GameObjects.Text;
   private playAndStop!: PlayAndStop;
+
+  private pickTower!: PickTower;
 
   constructor(...data: any) {
     console.log("--- construct game scene", data);
@@ -47,8 +50,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   preload() {
-    console.log("--- preload game scene");
-    console.log("--- load paper", ...Images[Image.PaperHeart]);
+    // Misc
     this.load.image(...Images[Image.PaperHeart]);
     this.load.image(...Images[Image.PaperHeartFull]);
     this.load.image(...Images[Image.Play]);
@@ -57,6 +59,9 @@ export class GameScene extends Phaser.Scene {
     this.load.image(...Images[Image.StopFull]);
     this.load.image(...Images[Image.PointerFlat]);
     this.load.image(...Images[Image.CursorHand]);
+    // Towers
+    this.load.image(...Images[Image.BunkerTowerBase]);
+    this.load.image(...Images[Image.BunkerTowerBarrel]);
   }
 
   create(data: GameSceneData) {
@@ -110,7 +115,41 @@ export class GameScene extends Phaser.Scene {
         color: RawColor.Contour,
       }
     );
-
+    this.pickTower = new PickTower(
+      this,
+      { x: this.scale.width - 200, y: 430 },
+      { width: 300, height: 400 },
+      [
+        {
+          name: "Bunker",
+          images: {
+            base: Image.BunkerTowerBase,
+            barrel: Image.BunkerTowerBarrel,
+          },
+        },
+        {
+          name: "Bunker2",
+          images: {
+            base: Image.BunkerTowerBase,
+            barrel: Image.BunkerTowerBarrel,
+          },
+        },
+        {
+          name: "Bunker3",
+          images: {
+            base: Image.BunkerTowerBase,
+            barrel: Image.BunkerTowerBarrel,
+          },
+        },
+        {
+          name: "Bunker4",
+          images: {
+            base: Image.BunkerTowerBase,
+            barrel: Image.BunkerTowerBarrel,
+          },
+        },
+      ]
+    );
     console.log("--- create game scene", data);
     this.add.existing(this.map);
   }
@@ -124,12 +163,12 @@ export class GameScene extends Phaser.Scene {
   }
 
   private onPlay() {
-    console.info('# GameScene - play')
+    console.info("# GameScene - play");
     this.wavesBar.start();
   }
 
   private onStop() {
-    console.info('# GameScene - stop')
+    console.info("# GameScene - stop");
     this.wavesBar.stop();
   }
 
