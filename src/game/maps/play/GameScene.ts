@@ -6,6 +6,7 @@ import { ExportedGrid } from "../builder/ExportedGrid";
 import { GameMap } from "./GameMap";
 import { GameSceneData } from "./GameSceneData";
 import { HeartsBar } from "./HeartsBar";
+import { PlayAndStop } from "./PlayAndStop";
 import { WaveTile } from "./WaveTile";
 import { WavesBar } from "./WavesBar";
 
@@ -15,6 +16,7 @@ export class GameScene extends Phaser.Scene {
   private wavesBar!: WavesBar;
   private grid!: ExportedGrid;
   private wavesInfo!: Phaser.GameObjects.Text;
+  private playAndStop!: PlayAndStop;
 
   constructor(...data: any) {
     console.log("--- construct game scene", data);
@@ -49,12 +51,34 @@ export class GameScene extends Phaser.Scene {
     console.log("--- load paper", ...Images[Image.PaperHeart]);
     this.load.image(...Images[Image.PaperHeart]);
     this.load.image(...Images[Image.PaperHeartFull]);
+    this.load.image(...Images[Image.Play]);
+    this.load.image(...Images[Image.PlayFull]);
+    this.load.image(...Images[Image.Stop]);
+    this.load.image(...Images[Image.StopFull]);
+    this.load.image(...Images[Image.PointerFlat]);
+    this.load.image(...Images[Image.CursorHand]);
   }
 
   create(data: GameSceneData) {
-    const { width } = this.scale;
+    const { width, height } = this.scale;
     const barWidth = 400;
     const barHeight = 40;
+    this.playAndStop = new PlayAndStop(
+      this,
+      {
+        x: width - 100,
+        y: height - 100,
+      },
+      {
+        width: 100,
+        height: 100,
+      },
+      undefined,
+      {
+        onPlay: () => this.onPlay(),
+        onStop: () => this.onStop(),
+      }
+    );
     this.heartsBar = new HeartsBar(
       this,
       {
@@ -86,7 +110,6 @@ export class GameScene extends Phaser.Scene {
         color: RawColor.Contour,
       }
     );
-    this.wavesBar.start();
 
     console.log("--- create game scene", data);
     this.add.existing(this.map);
@@ -98,6 +121,16 @@ export class GameScene extends Phaser.Scene {
 
   private createWaveInfoMessage(waveIndex: number) {
     return `Wave: ${waveIndex + 1}`;
+  }
+
+  private onPlay() {
+    console.info('# GameScene - play')
+    this.wavesBar.start();
+  }
+
+  private onStop() {
+    console.info('# GameScene - stop')
+    this.wavesBar.stop();
   }
 
   private onWaveChanged(wave: WaveTile) {
