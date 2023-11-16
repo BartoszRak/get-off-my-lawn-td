@@ -55,7 +55,8 @@ export class PickTower extends Phaser.GameObjects.Group {
         this.scene,
         { x, y },
         { width: this.options.tileSize, height: this.options.tileSize },
-        specifiedTower
+        specifiedTower,
+        { strokeWidth: 5, onClick: (...args) => this.onTowerClicked(...args) }
       );
       this.scene.add.existing(tile);
       return tile;
@@ -75,5 +76,9 @@ export class PickTower extends Phaser.GameObjects.Group {
     this.scene.add.existing(wrapper);
 
     return wrapper;
+  }
+
+  private onTowerClicked(data: TowerTemplate, tile: TowerTile) {
+    console.info("# Tower picked!", data);
   }
 }

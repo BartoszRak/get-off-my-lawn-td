@@ -8,7 +8,14 @@ export enum RawColor {
   LightGrey = "EEEEEE",
   Grey = "DDDDDD",
   DarkGrey = "CCCCCC",
-  LightText = "FFFFFF"
+
+  LightText = "FFFFFF",
+  DarkText = "000000",
+
+  Dark = "000000",
+  Light = "FFFFFF",
+  LightContrast = "000000",
+  DarkContrast = "FFFFFF",
 }
 
 export enum Color {
@@ -19,4 +26,12 @@ export enum Color {
   LightGrey = createColorFromRaw(RawColor.LightGrey),
   Grey = createColorFromRaw(RawColor.Grey),
   DarkGrey = createColorFromRaw(RawColor.DarkGrey),
+
+  LightText = createColorFromRaw(RawColor.LightText),
+  DarkText = createColorFromRaw(RawColor.DarkText),
+
+  Dark = createColorFromRaw(RawColor.Dark),
+  Light = createColorFromRaw(RawColor.Light),
+  LightContrast = createColorFromRaw(RawColor.LightContrast),
+  DarkContract = createColorFromRaw(RawColor.DarkContrast),
 }
