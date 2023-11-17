@@ -3,6 +3,7 @@ const createColorFromRaw = (raw: string) => parseInt(raw, 16);
 export enum RawColor {
   Success = "00FF00",
   Error = "FF0000",
+  ErrorContrast = "FFFFFF",
   Contour = "000000",
   Background = "FFFFFF",
   LightGrey = "EEEEEE",
@@ -21,6 +22,7 @@ export enum RawColor {
 export enum Color {
   Success = createColorFromRaw(RawColor.Success),
   Error = createColorFromRaw(RawColor.Error),
+  ErrorContrast = createColorFromRaw(RawColor.ErrorContrast),
   Contour = createColorFromRaw(RawColor.Contour),
   Background = createColorFromRaw(RawColor.Background),
   LightGrey = createColorFromRaw(RawColor.LightGrey),
@@ -33,5 +35,5 @@ export enum Color {
   Dark = createColorFromRaw(RawColor.Dark),
   Light = createColorFromRaw(RawColor.Light),
   LightContrast = createColorFromRaw(RawColor.LightContrast),
-  DarkContract = createColorFromRaw(RawColor.DarkContrast),
+  DarkContrast = createColorFromRaw(RawColor.DarkContrast),
 }

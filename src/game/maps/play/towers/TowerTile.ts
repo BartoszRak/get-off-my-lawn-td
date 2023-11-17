@@ -7,6 +7,7 @@ export interface TowerTileOptions {
   percentageSizeOfTower: number;
   onClick?: (data: TowerTemplate, tile: TowerTile) => void;
   strokeWidth: number;
+  disabled?: boolean;
 }
 
 const defaultOptions: TowerTileOptions = {
@@ -49,11 +50,43 @@ export class TowerTile extends Phaser.GameObjects.Group {
       preparedOptions
     );
     this.text = this.createDescription(data.name, data.cost);
-    this.wrapper = this.createWrapper();
+    this.wrapper = this.createWrapper(options.disabled);
 
-    this.attachCallbacks(this.wrapper, this.text);
+    if (!preparedOptions.disabled) {
+      this.attachCallbacks(this.wrapper, this.text);
+    }
 
     this.addMultiple([this.wrapper, this.text]);
+  }
+
+  couldBeBought(balance: number) {
+    return this.data.cost <= balance;
+  }
+
+  enable() {
+    if (!this.options.disabled) {
+      return;
+    }
+    this.options.disabled = false;
+    this.wrapper
+      .setStrokeStyle(this.options.strokeWidth, this.color)
+      .setInteractive({
+        cursor: "url(assets/cursor_hand.png), default",
+      });
+    this.attachCallbacks(this.wrapper, this.text);
+  }
+
+  disable() {
+    if (this.options.disabled) {
+      return;
+    }
+    this.options.disabled = true;
+    this.wrapper
+      .setStrokeStyle(this.options.strokeWidth, Color.Error)
+      .setInteractive({
+        cursor: "url(assets/cursor_pointerFlat.png), default",
+      });
+    this.cleanCallbacks(this.wrapper);
   }
 
   private attachCallbacks(
@@ -132,7 +165,7 @@ export class TowerTile extends Phaser.GameObjects.Group {
     );
   }
 
-  private createWrapper() {
+  private createWrapper(disabled?: boolean) {
     const { x, y } = this.position;
     const { width, height } = this.size;
     const wrapper = new Phaser.GameObjects.Rectangle(
@@ -142,11 +175,16 @@ export class TowerTile extends Phaser.GameObjects.Group {
       width,
       height
     )
-      .setInteractive({
-        cursor: "url(assets/cursor_hand.png), default",
-      })
-      .setStrokeStyle(this.options.strokeWidth, this.color)
+      .setStrokeStyle(
+        this.options.strokeWidth,
+        disabled ? Color.Error : this.color
+      )
       .setOrigin(0);
+    if (!disabled) {
+      wrapper.setInteractive({
+        cursor: "url(assets/cursor_hand.png), default",
+      });
+    }
     this.scene.add.existing(wrapper);
 
     return wrapper;

@@ -6,10 +6,13 @@ import { ExportedGrid } from "../builder/ExportedGrid";
 import { GameMap } from "./GameMap";
 import { GameSceneData } from "./GameSceneData";
 import { HeartsBar } from "./HeartsBar";
+import { BankAccount } from "./BankAccount";
 import { PlayAndStop } from "./PlayAndStop";
 import { WaveTile } from "./WaveTile";
 import { WavesBar } from "./WavesBar";
 import { PickTower } from "./towers/PickTower";
+import { TowerTemplate } from "./towers/TowerTemplate";
+import { TowerTile } from "./towers/TowerTile";
 
 export class GameScene extends Phaser.Scene {
   private map!: GameMap;
@@ -18,8 +21,14 @@ export class GameScene extends Phaser.Scene {
   private grid!: ExportedGrid;
   private wavesInfo!: Phaser.GameObjects.Text;
   private playAndStop!: PlayAndStop;
-
   private pickTower!: PickTower;
+  private bankAccount!: BankAccount;
+
+  private isPlacingTower = false;
+  private balance = 80;
+  private passiveIncome = 20;
+  private passiveIncomeIntervalInMs = 2000;
+  private passiveIncomeTimerEvent!: Phaser.Time.TimerEvent;
 
   constructor(...data: any) {
     console.log("--- construct game scene", data);
@@ -134,7 +143,7 @@ export class GameScene extends Phaser.Scene {
             base: Image.BunkerTowerBase,
             barrel: Image.BunkerTowerBarrel,
           },
-          cost: 200,
+          cost: 120,
         },
         {
           name: "Bunker3",
@@ -142,7 +151,7 @@ export class GameScene extends Phaser.Scene {
             base: Image.BunkerTowerBase,
             barrel: Image.BunkerTowerBarrel,
           },
-          cost: 800,
+          cost: 140,
         },
         {
           name: "Bunker4",
@@ -150,10 +159,24 @@ export class GameScene extends Phaser.Scene {
             base: Image.BunkerTowerBase,
             barrel: Image.BunkerTowerBarrel,
           },
-          cost: 1200,
+          cost: 160,
         },
-      ]
+      ],
+      {
+        money: this.balance,
+        onTowerPicked: (...args) => this.onTowerPicked(...args),
+      }
     );
+    this.bankAccount = new BankAccount(
+      this,
+      { x: 20, y: 20 },
+      20,
+      10,
+      this.balance
+    );
+
+    this.passiveIncomeTimerEvent = this.createPassiveIncomeTimerEvent();
+
     console.log("--- create game scene", data);
     this.add.existing(this.map);
   }
@@ -162,22 +185,52 @@ export class GameScene extends Phaser.Scene {
     // console.log(`### GameScene Update (${Date.now()})`)
   }
 
+  private createPassiveIncomeTimerEvent() {
+    return this.time.addEvent({
+      callback: () => this.addMoney(this.passiveIncome),
+      delay: this.passiveIncomeIntervalInMs,
+      loop: true,
+      paused: true,
+    });
+  }
+
+  private startPassiveIncome() {
+    this.passiveIncomeTimerEvent.paused = false;
+  }
+
+  private stopPassiveIncome() {
+    this.passiveIncomeTimerEvent.paused = true;
+  }
+
+  private addMoney(amount: number) {
+    const newBalance = this.balance + amount;
+    this.balance = newBalance;
+    this.bankAccount.setMoney(newBalance);
+    this.pickTower.updateBalance(newBalance);
+  }
+
   private createWaveInfoMessage(waveIndex: number) {
     return `Wave: ${waveIndex + 1}`;
   }
 
   private onPlay() {
     console.info("# GameScene - play");
+    this.startPassiveIncome();
     this.wavesBar.start();
   }
 
   private onStop() {
     console.info("# GameScene - stop");
+    this.stopPassiveIncome();
     this.wavesBar.stop();
   }
 
   private onWaveChanged(wave: WaveTile) {
     const text = this.createWaveInfoMessage(wave.getDetails().index);
     this.wavesInfo.setText(text);
+  }
+
+  private onTowerPicked(data: TowerTemplate, tile: TowerTile) {
+    console.info("# Tower picked!", data);
   }
 }

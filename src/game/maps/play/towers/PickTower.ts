@@ -5,10 +5,13 @@ import { TowerTile } from "./TowerTile";
 
 export interface PickTowerOptions {
   towersInRow: number;
+  onTowerPicked?: (data: TowerTemplate, tile: TowerTile) => void;
+  money: number;
 }
 
 const defaultOptions: PickTowerOptions = {
   towersInRow: 3,
+  money: 0,
 };
 
 export type PickTowerFullOptions = PickTowerOptions & {
@@ -42,6 +45,17 @@ export class PickTower extends Phaser.GameObjects.Group {
     this.addMultiple([this.wrapper /* All tiels childrens should be here? */]);
   }
 
+  updateBalance(balance: number) {
+    this.options.money = balance;
+    this.tiles.forEach((specifiedTile) => {
+      if (specifiedTile.couldBeBought(balance)) {
+        specifiedTile.enable();
+      } else {
+        specifiedTile.disable();
+      }
+    });
+  }
+
   private createTowerTiles(towers: TowerTemplate[]) {
     return towers.map((specifiedTower, index) => {
       const cell = index % this.options.towersInRow;
@@ -51,12 +65,18 @@ export class PickTower extends Phaser.GameObjects.Group {
         this.position.y + row * this.options.tileSize - this.size.height / 2;
       const x =
         this.position.x - this.size.width / 2 + this.options.tileSize * cell;
+      const couldBeBought = specifiedTower.cost <= this.options.money;
+      const disabled = couldBeBought ? false : true;
       const tile = new TowerTile(
         this.scene,
         { x, y },
         { width: this.options.tileSize, height: this.options.tileSize },
         specifiedTower,
-        { strokeWidth: 5, onClick: (...args) => this.onTowerClicked(...args) }
+        {
+          strokeWidth: 5,
+          onClick: (...args) => this.onTowerClicked(...args),
+          disabled,
+        }
       );
       this.scene.add.existing(tile);
       return tile;
@@ -80,5 +100,9 @@ export class PickTower extends Phaser.GameObjects.Group {
 
   private onTowerClicked(data: TowerTemplate, tile: TowerTile) {
     console.info("# Tower picked!", data);
+    const { onTowerPicked } = this.options;
+    if (onTowerPicked) {
+      onTowerPicked(data, tile);
+    }
   }
 }
