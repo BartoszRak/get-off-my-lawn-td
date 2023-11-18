@@ -128,7 +128,6 @@ export class Label extends Phaser.GameObjects.Container {
     text: Phaser.GameObjects.Text,
     onClick?: LabelOptions["onClick"]
   ) {
-    text.disableInteractive();
     text.off(Phaser.Input.Events.POINTER_OVER);
     text.off(Phaser.Input.Events.POINTER_OUT);
     if (onClick) {
