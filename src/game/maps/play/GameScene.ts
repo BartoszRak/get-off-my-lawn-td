@@ -11,9 +11,7 @@ import { PlayAndStop } from "./PlayAndStop";
 import { WaveTile } from "./WaveTile";
 import { WavesBar } from "./WavesBar";
 import { PickTower } from "./towers/PickTower";
-import { TowerTemplate } from "./towers/TowerTemplate";
 import { TowerTile } from "./towers/TowerTile";
-import { CellId } from "../CellId";
 import { GameCell } from "./GameCell";
 import { Tower } from "./towers/Tower";
 

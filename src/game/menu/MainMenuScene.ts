@@ -1,7 +1,6 @@
-import { isDefined } from "../../utils";
 import { Image, Images } from "../Images";
 import { SceneKey } from "../SceneKey";
-import { Button } from "./Button";
+import { Label } from "../shared";
 
 interface ButtonWithText {
   button: Phaser.GameObjects.Image;
@@ -46,6 +45,7 @@ export class MainMenuScene extends Phaser.Scene {
       {
         text: "Play",
         onClick: () => {
+          console.log("--- play click", typeof this, this);
           this.scene.manager.switch(this.scene.key, SceneKey.PickMap);
         },
       },
@@ -76,14 +76,21 @@ export class MainMenuScene extends Phaser.Scene {
       buttonConfigs.length * (this.buttonSize.height + this.buttonMarginY) -
       this.buttonMarginY;
     const blockY = height / 2 - fullHeight / 2;
-    buttonConfigs.forEach((specifiedConfig, index) => {
+    return buttonConfigs.map(({ text, onClick }, index) => {
       const x = width / 2;
       const y =
         blockY +
         this.buttonSize.height / 2 +
         (this.buttonSize.height + this.buttonMarginY) * index;
 
-      new Button(this, specifiedConfig, { x, y }, this.buttonSize);
+      return new Label(this, { x, y }, text, {
+        padding: {
+          x: 20,
+          y: 20,
+        },
+        fontSize: 25,
+        onClick,
+      });
     });
   }
 }

@@ -1,11 +1,11 @@
 import Phaser from "phaser";
 import { SceneKey } from "../../SceneKey";
-import { Button } from "../../menu/Button";
 import { RawMap, RawMaps } from "../RawMaps";
 import { ExportedGrid } from "../builder/ExportedGrid";
 import { Position, Size } from "../../../utils";
 import { GameMap } from "./GameMap";
 import { Image, Images } from "../../Images";
+import { Label } from "../../shared";
 
 export class PickMapScene extends Phaser.Scene {
   private readonly planeWidthPercentage = 0.6;
@@ -95,15 +95,14 @@ export class PickMapScene extends Phaser.Scene {
   }
 
   private createButtons() {
-    new Button(
-      this,
-      {
-        text: "BACK",
-        onClick: () => this.goBackToMenu(),
+    new Label(this, { x: 100, y: 50 }, "BACK", {
+      onClick: () => this.goBackToMenu(),
+      fontSize: 25,
+      padding: {
+        x: 15,
+        y: 15,
       },
-      { x: 100, y: 50 },
-      undefined
-    );
+    });
   }
 
   private goBackToMenu() {

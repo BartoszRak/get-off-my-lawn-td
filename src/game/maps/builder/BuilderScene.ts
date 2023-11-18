@@ -1,11 +1,11 @@
 import { Image, Images } from "../../Images";
 import { SceneKey } from "../../SceneKey";
-import { Button } from "../../menu/Button";
 import { BuilderGrid } from "./BuilderGrid";
 import { saveAs } from "file-saver";
 import { ExportedGrid } from "./ExportedGrid";
 import { BuilderGridEvent } from "./BuilderGridEvent";
 import { isDefined } from "../../../utils";
+import { Label } from "../../shared";
 
 export class BuilderScene extends Phaser.Scene {
   private readonly planeWidthPercentage = 0.4;
@@ -50,41 +50,47 @@ export class BuilderScene extends Phaser.Scene {
 
   private createButtons(grid: BuilderGrid) {
     const { width, height } = this.scale;
-    const backButton = new Button(
-      this,
-      {
-        text: "BACK",
-        onClick: () => this.goBackToMenu(),
+    const backButton = new Label(this, { x: 100, y: 50 }, "BACK", {
+      onClick: () => this.goBackToMenu(),
+      fontSize: 25,
+      padding: {
+        x: 15,
+        y: 15,
       },
-      { x: 100, y: 50 },
-      undefined
-    );
-    const resetButton = new Button(
+    });
+    const resetButton = new Label(
       this,
       {
-        text: "RESET",
+        x: width - 100,
+        y: height - 50,
+      },
+      "RESET",
+      {
         onClick: () => grid.deselectAllCells(),
-      },
-      {
-        x: width - 100, // - ButtonDefaultSize.width,
-        y: height - 50, // - ButtonDefaultSize.height,
-      },
-      undefined
+        fontSize: 25,
+        padding: {
+          x: 15,
+          y: 15,
+        },
+      }
     );
-    const exportButton = new Button(
+
+    const exportButton = new Label(
       this,
       {
-        text: "EXPORT",
-        onClick: () => {
-          this.executeExport(grid);
-        },
-        disabled: true,
+        x: width - 100,
+        y: height - 120,
       },
+      "EXPORT",
       {
-        x: width - 100, // - ButtonDefaultSize.width,
-        y: height - 120, // - ButtonDefaultSize.height,
-      },
-      undefined
+        onClick: () => this.executeExport(grid),
+        isDisabled: true,
+        fontSize: 25,
+        padding: {
+          x: 15,
+          y: 15,
+        },
+      }
     );
 
     return {

@@ -101,13 +101,13 @@ export class TowerTile extends Phaser.GameObjects.Group {
     }
     wrapper.on(Phaser.Input.Events.POINTER_OVER, () => {
       wrapper.setStrokeStyle(2, this.hoverColor);
-      text.setBackgroundColor(`#${this.rawHoverColor}`);
-      text.setColor(`#${RawColor.LightContrast}`);
+      text.setBackgroundColor(this.rawHoverColor);
+      text.setColor(RawColor.LightContrast);
     });
     wrapper.on(Phaser.Input.Events.POINTER_OUT, () => {
       wrapper.setStrokeStyle(2, this.color);
-      text.setBackgroundColor(`#${this.rawColor}`);
-      text.setColor(`#${RawColor.Light}`);
+      text.setBackgroundColor(this.rawColor);
+      text.setColor(RawColor.Light);
     });
     this.scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       this.cleanCallbacks(wrapper);
@@ -129,8 +129,8 @@ export class TowerTile extends Phaser.GameObjects.Group {
     const y = this.position.y + this.size.height - height;
     const description = `${name.toUpperCase()}(${cost}$)`;
     const text = new Phaser.GameObjects.Text(this.scene, x, y, description, {
-      backgroundColor: `#${this.rawColor}`,
-      color: `#${RawColor.LightText}`,
+      backgroundColor: this.rawColor,
+      color: RawColor.LightText,
       fontSize: 11,
       fixedWidth: this.size.width,
       fixedHeight: height,

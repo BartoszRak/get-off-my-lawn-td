@@ -42,8 +42,8 @@ export class BankAccount extends Phaser.GameObjects.Group {
       y,
       this.createMessage(money),
       {
-        backgroundColor: `#${RawColor.Dark}`,
-        color: `#${RawColor.DarkContrast}`,
+        backgroundColor: RawColor.Dark,
+        color: RawColor.DarkContrast,
         fontSize,
         align: "center",
         padding: {
