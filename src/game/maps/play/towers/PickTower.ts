@@ -5,7 +5,7 @@ import { TowerTile } from "./TowerTile";
 
 export interface PickTowerOptions {
   towersInRow: number;
-  onTowerPicked?: (data: TowerTemplate, tile: TowerTile) => void;
+  onTowerPicked?: (tile: TowerTile) => void;
   money: number;
 }
 
@@ -98,11 +98,11 @@ export class PickTower extends Phaser.GameObjects.Group {
     return wrapper;
   }
 
-  private onTowerClicked(data: TowerTemplate, tile: TowerTile) {
-    console.info("# Tower picked!", data);
+  private onTowerClicked(tile: TowerTile) {
+    console.info("# Tower picked!", tile.data);
     const { onTowerPicked } = this.options;
     if (onTowerPicked) {
-      onTowerPicked(data, tile);
+      onTowerPicked(tile);
     }
   }
 }

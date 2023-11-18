@@ -15,6 +15,7 @@ import { TowerTemplate } from "./towers/TowerTemplate";
 import { TowerTile } from "./towers/TowerTile";
 import { CellId } from "../CellId";
 import { GameCell } from "./GameCell";
+import { Tower } from "./towers/Tower";
 
 export class GameScene extends Phaser.Scene {
   private map!: GameMap;
@@ -32,7 +33,9 @@ export class GameScene extends Phaser.Scene {
   private passiveIncomeIntervalInMs = 2000;
   private passiveIncomeTimerEvent!: Phaser.Time.TimerEvent;
 
-  private placingTower?: TowerTemplate = undefined;
+  private readonly towers: Tower[] = [];
+
+  private placingTower?: TowerTile = undefined;
 
   constructor(...data: any) {
     console.log("--- construct game scene", data);
@@ -200,8 +203,23 @@ export class GameScene extends Phaser.Scene {
     });
   }
   private cellPicked(cell: GameCell) {
-    console.info("# Cell to place tower picked!", cell);
+    console.info("# Cell to place tower picked!");
+    console.info("---> Picked cell:", cell);
+    if (this.placingTower) {
+      console.info("---> Placing tower:", this.placingTower);
+      const couldBeBought = this.placingTower.couldBeBought(this.balance);
+      console.info("---> Could be bought?:", couldBeBought);
+      if (couldBeBought) {
+        this.placeTower(cell, this.placingTower);
+      }
+    }
     this.map.makeUnpickable();
+  }
+
+  private placeTower(cell: GameCell, tile: TowerTile) {
+    this.removeMoney(tile.data.cost);
+    cell.placeTower(tile.data);
+    this.placingTower = undefined;
   }
 
   private startPassiveIncome() {
@@ -214,6 +232,13 @@ export class GameScene extends Phaser.Scene {
 
   private addMoney(amount: number) {
     const newBalance = this.balance + amount;
+    this.balance = newBalance;
+    this.bankAccount.setMoney(newBalance);
+    this.pickTower.updateBalance(newBalance);
+  }
+
+  private removeMoney(amount: number) {
+    const newBalance = this.balance - amount;
     this.balance = newBalance;
     this.bankAccount.setMoney(newBalance);
     this.pickTower.updateBalance(newBalance);
@@ -240,9 +265,9 @@ export class GameScene extends Phaser.Scene {
     this.wavesInfo.setText(text);
   }
 
-  private onTowerPicked(data: TowerTemplate, tile: TowerTile) {
-    console.info("# Tower picked!", data);
-    this.placingTower = data;
-    this.map.makePickable(data);
+  private onTowerPicked(tile: TowerTile) {
+    console.info("# Tower picked!", tile.data);
+    this.placingTower = tile;
+    this.map.makePickable(tile.data);
   }
 }

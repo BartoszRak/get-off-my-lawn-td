@@ -5,7 +5,7 @@ import { TowerTemplate } from "./TowerTemplate";
 
 export interface TowerTileOptions {
   percentageSizeOfTower: number;
-  onClick?: (data: TowerTemplate, tile: TowerTile) => void;
+  onClick?: (tile: TowerTile) => void;
   strokeWidth: number;
   disabled?: boolean;
 }
@@ -31,7 +31,7 @@ export class TowerTile extends Phaser.GameObjects.Group {
     scene: Phaser.Scene,
     private readonly position: Position,
     size: Size,
-    private readonly data: TowerTemplate,
+    public readonly data: TowerTemplate,
     options: Partial<TowerTileOptions> = defaultOptions
   ) {
     super(scene);
@@ -96,7 +96,7 @@ export class TowerTile extends Phaser.GameObjects.Group {
     const { onClick } = this.options;
     if (onClick) {
       wrapper.on(Phaser.Input.Events.POINTER_UP, () => {
-        onClick(this.data, this);
+        onClick(this);
       });
     }
     wrapper.on(Phaser.Input.Events.POINTER_OVER, () => {

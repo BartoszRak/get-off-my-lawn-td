@@ -1,4 +1,4 @@
-import { Position, Size } from "../../../utils";
+import { Position, Size, isDefined } from "../../../utils";
 import { Color } from "../../Color";
 import { CellId } from "../CellId";
 import { Tower } from "./towers/Tower";
@@ -22,6 +22,7 @@ export class GameCell extends Phaser.GameObjects.Rectangle {
   private readonly options: GameCellOptions;
   private readonly specifiedColor: Color;
   private previewTower?: Tower;
+  private tower?: Tower;
 
   constructor(
     scene: Phaser.Scene,
@@ -63,10 +64,14 @@ export class GameCell extends Phaser.GameObjects.Rectangle {
     this.options = mergedOptions;
   }
 
+  placeTower(data: TowerTemplate) {
+    this.tower = this.createTower(data);
+  }
+
   makePickable(data: TowerTemplate) {
     if (!this.options.isPickable) {
       this.options.isPickable = true;
-      this.previewTower = this.createTower(data);
+      this.previewTower = this.createTower(data).setAlpha(0);
 
       this.setInteractive();
       this.setStrokeStyle(2, Color.Warn);
@@ -105,7 +110,7 @@ export class GameCell extends Phaser.GameObjects.Rectangle {
         height,
       },
       data
-    ).setAlpha(0);
+    );
   }
 
   private attachCallbacks() {
@@ -146,7 +151,12 @@ export class GameCell extends Phaser.GameObjects.Rectangle {
       this.options.isEnd,
       this.options.isStart,
       this.options.isPath,
+      this.hasTower(),
     ].every((value) => value !== true);
+  }
+
+  hasTower() {
+    return isDefined(this.tower);
   }
 
   isPath() {
