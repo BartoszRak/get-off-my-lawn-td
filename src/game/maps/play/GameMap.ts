@@ -5,10 +5,12 @@ import { GameCell } from "./GameCell";
 import { Color } from "../../Color";
 import { CellId } from "../CellId";
 import { sortBy } from "lodash";
+import { TowerTemplate } from "./towers/TowerTemplate";
 
 export interface GameMapOptions<T> {
   isButton?: boolean;
   onClick?: (map: T) => void;
+  onPicked?: (cell: GameCell) => void;
 }
 
 export class GameMap extends Phaser.GameObjects.Container {
@@ -51,9 +53,24 @@ export class GameMap extends Phaser.GameObjects.Container {
     this.createPath();
   }
 
+  makePickable(data: TowerTemplate) {
+    this.cells.forEach((specifiedCell) => {
+      if (specifiedCell.couldBePickable()) {
+        // console.info(`# Make cell pickable (id: ${specifiedCell.id})`);
+        specifiedCell.makePickable(data);
+      }
+    });
+  }
+
+  makeUnpickable() {
+    this.cells.forEach((specifiedCell) => {
+      specifiedCell.makeUnpickable();
+    });
+  }
+
   private createPath() {
     const unsortedPathCells = this.cells
-      .filter((specifiedCell) => specifiedCell.isPath)
+      .filter((specifiedCell) => specifiedCell.isPath())
       .map((specifiedCell) => {
         return {
           cell: specifiedCell,
@@ -109,14 +126,23 @@ export class GameMap extends Phaser.GameObjects.Container {
     if (isStart) {
       this.wasStartMarked = true;
     }
+    const baseOptions = {
+      isPath: exportedCell.isPath,
+      isStart,
+      isEnd,
+    };
+    const options = this.options.onPicked
+      ? {
+          ...baseOptions,
+          onPicked: this.options.onPicked,
+        }
+      : baseOptions;
     return new GameCell(
       this.scene,
       new CellId(rowIndex, columnIndex),
       position,
       size,
-      exportedCell.isPath,
-      isStart,
-      isEnd
+      options
     );
   }
 

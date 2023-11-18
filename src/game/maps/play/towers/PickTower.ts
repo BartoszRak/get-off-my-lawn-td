@@ -32,8 +32,8 @@ export class PickTower extends Phaser.GameObjects.Group {
   ) {
     super(scene);
     const fullOptions: PickTowerOptions = {
-      ...options,
       ...defaultOptions,
+      ...options,
     };
     this.options = {
       ...fullOptions,

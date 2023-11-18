@@ -1,17 +1,40 @@
 import { Position, Size } from "../../../utils";
 import { Color } from "../../Color";
 import { CellId } from "../CellId";
+import { Tower } from "./towers/Tower";
+import { TowerTemplate } from "./towers/TowerTemplate";
+
+interface GameCellOptions {
+  isPath?: boolean;
+  isStart?: boolean;
+  isEnd?: boolean;
+  isPickable: boolean;
+  onPicked?: (cell: GameCell) => void;
+  towerSizePercentage: number;
+}
+
+const defaultGameCellOptions: GameCellOptions = {
+  isPickable: false,
+  towerSizePercentage: 1,
+};
 
 export class GameCell extends Phaser.GameObjects.Rectangle {
+  private readonly options: GameCellOptions;
+  private readonly specifiedColor: Color;
+  private previewTower?: Tower;
+
   constructor(
     scene: Phaser.Scene,
     public readonly id: CellId,
     cellPosition: Position,
     cellSize: Size,
-    public readonly isPath = false,
-    public readonly isStart = false,
-    public readonly isEnd = false
+    options: Partial<GameCellOptions>
   ) {
+    const mergedOptions: GameCellOptions = {
+      ...defaultGameCellOptions,
+      ...options,
+    };
+    const { isStart, isEnd, isPath } = mergedOptions;
     const getColor = () => {
       if (isPath) {
         if (isStart) {
@@ -36,5 +59,105 @@ export class GameCell extends Phaser.GameObjects.Rectangle {
       color,
       isStart || isEnd ? 0.2 : 1
     );
+    this.specifiedColor = color;
+    this.options = mergedOptions;
+  }
+
+  makePickable(data: TowerTemplate) {
+    if (!this.options.isPickable) {
+      this.options.isPickable = true;
+      this.previewTower = this.createTower(data);
+
+      this.setInteractive();
+      this.setStrokeStyle(2, Color.Warn);
+      this.attachCallbacks();
+    }
+  }
+
+  makeUnpickable() {
+    if (this.options.isPickable) {
+      this.options.isPickable = false;
+      this.disableInteractive();
+      this.setStrokeStyle(2, this.specifiedColor);
+      this.setFillStyle(this.specifiedColor);
+      this.cleanCallbacks();
+
+      if (this.previewTower) {
+        this.previewTower.destroy(true);
+        this.previewTower = undefined;
+      }
+    }
+  }
+
+  private createTower(data: TowerTemplate) {
+    const width = this.options.towerSizePercentage * this.width;
+    const height = this.options.towerSizePercentage * this.height;
+    const x = this.x;
+    const y = this.y;
+    return new Tower(
+      this.scene,
+      {
+        x,
+        y,
+      },
+      {
+        width,
+        height,
+      },
+      data
+    ).setAlpha(0);
+  }
+
+  private attachCallbacks() {
+    const { onPicked: onClick } = this.options;
+    if (onClick) {
+      this.on(Phaser.Input.Events.POINTER_UP, () => {
+        onClick(this);
+      });
+    }
+    this.on(Phaser.Input.Events.POINTER_OVER, () => {
+      this.setFillStyle(Color.Success, 0.6);
+      if (this.previewTower) {
+        this.previewTower.setAlpha(0.3);
+      }
+    });
+    this.on(Phaser.Input.Events.POINTER_OUT, () => {
+      this.setFillStyle(this.specifiedColor);
+      if (this.previewTower) {
+        this.previewTower.setAlpha(0);
+      }
+    });
+    this.scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.cleanCallbacks();
+    });
+  }
+
+  private cleanCallbacks() {
+    const { onPicked: onClick } = this.options;
+    this.off(Phaser.Input.Events.POINTER_OVER);
+    this.off(Phaser.Input.Events.POINTER_OUT);
+    if (onClick) {
+      this.off(Phaser.Input.Events.POINTER_UP);
+    }
+  }
+
+  couldBePickable() {
+    return [
+      this.options.isEnd,
+      this.options.isStart,
+      this.options.isPath,
+    ].every((value) => value !== true);
+  }
+
+  isPath() {
+    return this.options.isPath;
+  }
+
+  isEnd() {
+    return this.options.isEnd;
+  }
+
+  isStart() {
+    return this.options.isStart;
   }
 }

@@ -17,6 +17,9 @@ export enum RawColor {
   Light = "FFFFFF",
   LightContrast = "000000",
   DarkContrast = "FFFFFF",
+
+  Warn = "FFFF00",
+  WarnContrast = "000000",
 }
 
 export enum Color {
@@ -36,4 +39,7 @@ export enum Color {
   Light = createColorFromRaw(RawColor.Light),
   LightContrast = createColorFromRaw(RawColor.LightContrast),
   DarkContrast = createColorFromRaw(RawColor.DarkContrast),
+
+  Warn = createColorFromRaw(RawColor.Warn),
+  WarnContrast = createColorFromRaw(RawColor.WarnContrast),
 }

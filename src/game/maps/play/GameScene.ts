@@ -13,6 +13,8 @@ import { WavesBar } from "./WavesBar";
 import { PickTower } from "./towers/PickTower";
 import { TowerTemplate } from "./towers/TowerTemplate";
 import { TowerTile } from "./towers/TowerTile";
+import { CellId } from "../CellId";
+import { GameCell } from "./GameCell";
 
 export class GameScene extends Phaser.Scene {
   private map!: GameMap;
@@ -25,10 +27,12 @@ export class GameScene extends Phaser.Scene {
   private bankAccount!: BankAccount;
 
   private isPlacingTower = false;
-  private balance = 80;
+  private balance = 120;
   private passiveIncome = 20;
   private passiveIncomeIntervalInMs = 2000;
   private passiveIncomeTimerEvent!: Phaser.Time.TimerEvent;
+
+  private placingTower?: TowerTemplate = undefined;
 
   constructor(...data: any) {
     console.log("--- construct game scene", data);
@@ -55,7 +59,9 @@ export class GameScene extends Phaser.Scene {
       y: height / 2,
     };
     const size: Size = { width: height, height };
-    this.map = new GameMap(this, position, size, grid);
+    this.map = new GameMap(this, position, size, grid, {
+      onPicked: (...args) => this.cellPicked(...args),
+    });
   }
 
   preload() {
@@ -193,6 +199,10 @@ export class GameScene extends Phaser.Scene {
       paused: true,
     });
   }
+  private cellPicked(cell: GameCell) {
+    console.info("# Cell to place tower picked!", cell);
+    this.map.makeUnpickable();
+  }
 
   private startPassiveIncome() {
     this.passiveIncomeTimerEvent.paused = false;
@@ -232,5 +242,7 @@ export class GameScene extends Phaser.Scene {
 
   private onTowerPicked(data: TowerTemplate, tile: TowerTile) {
     console.info("# Tower picked!", data);
+    this.placingTower = data;
+    this.map.makePickable(data);
   }
 }
