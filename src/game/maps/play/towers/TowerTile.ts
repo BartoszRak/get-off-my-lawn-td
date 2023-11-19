@@ -1,6 +1,6 @@
 import { Position, Size } from "../../../../utils";
 import { Color, RawColor } from "../../../Color";
-import { Tower } from "./Tower";
+import { Tower } from "./specified-towers/Tower";
 import { TowerTemplate } from "./TowerTemplate";
 
 export interface TowerTileOptions {
@@ -49,7 +49,7 @@ export class TowerTile extends Phaser.GameObjects.Group {
       preparedSize,
       preparedOptions
     );
-    this.text = this.createDescription(data.name, data.cost);
+    this.text = this.createDescription(data.name, data.levels[0].cost);
     this.wrapper = this.createWrapper(options.disabled);
 
     if (!preparedOptions.disabled) {
@@ -60,7 +60,7 @@ export class TowerTile extends Phaser.GameObjects.Group {
   }
 
   couldBeBought(balance: number) {
-    return this.data.cost <= balance;
+    return this.data.levels[0].cost <= balance;
   }
 
   enable() {

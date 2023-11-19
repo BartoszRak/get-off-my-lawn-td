@@ -1,4 +1,4 @@
-import { Position, Size } from "../../../utils";
+import { Position, Size, isDefined } from "../../../utils";
 import { RawColor } from "../../Color";
 import { Image, Images } from "../../Images";
 import { SceneKey } from "../../SceneKey";
@@ -13,7 +13,11 @@ import { WavesBar } from "./WavesBar";
 import { PickTower } from "./towers/PickTower";
 import { TowerTile } from "./towers/TowerTile";
 import { GameCell } from "./GameCell";
-import { Tower } from "./towers/Tower";
+import { Tower } from "./towers/specified-towers/Tower";
+import { machineGunTowerTemplate } from "./towers/specified-towers/MachineGunTower";
+import { TowerImage, TowerImages } from "../../TowerImage";
+import { canonTowerTemplate } from "./towers/specified-towers/CanonTower";
+import { missileLauncherTowerTemplate } from "./towers/specified-towers/MissileLauncher";
 
 export class GameScene extends Phaser.Scene {
   private map!: GameMap;
@@ -75,9 +79,34 @@ export class GameScene extends Phaser.Scene {
     this.load.image(...Images[Image.StopFull]);
     this.load.image(...Images[Image.PointerFlat]);
     this.load.image(...Images[Image.CursorHand]);
-    // Towers
-    this.load.image(...Images[Image.BunkerTowerBase]);
-    this.load.image(...Images[Image.BunkerTowerBarrel]);
+
+    //Towers
+    const towerImagesConfigurations: Phaser.Types.Loader.FileTypes.ImageFileConfig[] =
+      Object.values(TowerImage)
+        .map(
+          (
+            specifiedTower
+          ): Phaser.Types.Loader.FileTypes.ImageFileConfig | null => {
+            const path = TowerImages[specifiedTower];
+            console.info(
+              `# Creating config for tower image "${specifiedTower}"`
+            );
+            if (!path) {
+              const error = new Error(
+                `!!! Missing tower image path for "${specifiedTower}"`
+              );
+              console.error(error);
+              return null;
+            }
+            return {
+              key: specifiedTower,
+              url: path,
+            };
+          }
+        )
+        .filter(isDefined);
+
+    this.load.image(towerImagesConfigurations);
   }
 
   create(data: GameSceneData) {
@@ -136,38 +165,9 @@ export class GameScene extends Phaser.Scene {
       { x: this.scale.width - 200, y: 430 },
       { width: 300, height: 400 },
       [
-        {
-          name: "Bunker",
-          images: {
-            base: Image.BunkerTowerBase,
-            barrel: Image.BunkerTowerBarrel,
-          },
-          cost: 100,
-        },
-        {
-          name: "Bunker2",
-          images: {
-            base: Image.BunkerTowerBase,
-            barrel: Image.BunkerTowerBarrel,
-          },
-          cost: 120,
-        },
-        {
-          name: "Bunker3",
-          images: {
-            base: Image.BunkerTowerBase,
-            barrel: Image.BunkerTowerBarrel,
-          },
-          cost: 140,
-        },
-        {
-          name: "Bunker4",
-          images: {
-            base: Image.BunkerTowerBase,
-            barrel: Image.BunkerTowerBarrel,
-          },
-          cost: 160,
-        },
+        machineGunTowerTemplate,
+        canonTowerTemplate,
+        missileLauncherTowerTemplate,
       ],
       {
         money: this.balance,
@@ -215,7 +215,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   private placeTower(cell: GameCell, tile: TowerTile) {
-    this.removeMoney(tile.data.cost);
+    this.removeMoney(tile.data.levels[0].cost);
     cell.placeTower(tile.data);
     this.placingTower = undefined;
   }

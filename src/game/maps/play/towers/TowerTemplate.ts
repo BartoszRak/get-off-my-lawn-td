@@ -1,12 +1,15 @@
-import { Image } from "../../../Images";
+import { TowerImage } from "../../../TowerImage";
 
-export interface TowerImages {
-  base: Image;
-  barrel: Image;
+export interface TowerLevel {
+  images: {
+    base: TowerImage;
+    barrel: TowerImage;
+    bullet: TowerImage;
+  };
+  cost: number;
 }
 
 export interface TowerTemplate {
   name: string;
-  images: TowerImages;
-  cost: number
+  levels: TowerLevel[];
 }

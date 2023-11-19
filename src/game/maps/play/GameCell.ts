@@ -1,7 +1,7 @@
 import { Position, Size, isDefined } from "../../../utils";
 import { Color } from "../../Color";
 import { CellId } from "../CellId";
-import { Tower } from "./towers/Tower";
+import { Tower } from "./towers/specified-towers/Tower";
 import { TowerTemplate } from "./towers/TowerTemplate";
 
 interface GameCellOptions {

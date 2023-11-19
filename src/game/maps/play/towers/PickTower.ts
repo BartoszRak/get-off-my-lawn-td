@@ -65,7 +65,7 @@ export class PickTower extends Phaser.GameObjects.Group {
         this.position.y + row * this.options.tileSize - this.size.height / 2;
       const x =
         this.position.x - this.size.width / 2 + this.options.tileSize * cell;
-      const couldBeBought = specifiedTower.cost <= this.options.money;
+      const couldBeBought = specifiedTower.levels[0].cost <= this.options.money;
       const disabled = couldBeBought ? false : true;
       const tile = new TowerTile(
         this.scene,

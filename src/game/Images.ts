@@ -8,8 +8,6 @@ export enum Image {
   PlayFull = "play-full",
   Stop = "stop",
   StopFull = "stop-full",
-  BunkerTowerBase = "bunker-tower-base",
-  BunkerTowerBarrel = "bunker-tower-barrel",
 }
 
 export const Images: Record<string, [string, string]> = {
@@ -25,12 +23,4 @@ export const Images: Record<string, [string, string]> = {
   [Image.PlayFull]: [Image.PlayFull, "./assets/play-full.png"],
   [Image.Stop]: [Image.Stop, "./assets/stop.png"],
   [Image.StopFull]: [Image.StopFull, "./assets/stop-full.png"],
-  [Image.BunkerTowerBase]: [
-    Image.BunkerTowerBase,
-    "./assets/towers/bunker/bunker-base.png",
-  ],
-  [Image.BunkerTowerBarrel]: [
-    Image.BunkerTowerBarrel,
-    "./assets/towers/bunker/bunker-barrel.png",
-  ],
 };
