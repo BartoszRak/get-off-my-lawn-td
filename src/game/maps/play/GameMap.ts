@@ -6,6 +6,10 @@ import { Color } from "../../Color";
 import { CellId } from "../CellId";
 import { sortBy } from "lodash";
 import { TowerTemplate } from "./towers/TowerTemplate";
+import { WaveTile } from "./WaveTile";
+import { Enemy, EnemyTemplate } from "./enemies/Enemy";
+import { basicZombieEnemyTemplate } from "./enemies/BasicZombie";
+import { applyEnemyMultiplier } from "./enemies/applyEnemyMultiplier";
 
 export interface GameMapOptions<T> {
   isButton?: boolean;
@@ -15,11 +19,18 @@ export interface GameMapOptions<T> {
 
 export class GameMap extends Phaser.GameObjects.Container {
   private readonly cells: GameCell[];
+  private startingCell!: GameCell;
+
   private readonly wrapper: Phaser.GameObjects.Rectangle;
+  private readonly path: Phaser.Curves.Path;
+
   private readonly columns: number;
   private readonly rows: number;
+  private readonly cellSize: Size;
   private wasStartMarked = false;
   private pathIds: CellId[];
+
+  private enemies: Enemy[] = [];
 
   constructor(
     scene: Phaser.Scene,
@@ -34,14 +45,22 @@ export class GameMap extends Phaser.GameObjects.Container {
     );
     this.columns = exportedGrid.columns;
     this.rows = exportedGrid.rows;
+    this.cellSize = {
+      width: this.mapSize.width / this.columns,
+      height: this.mapSize.height / this.rows,
+    };
 
     this.wrapper = this.createWrapper(options);
 
     this.cells = exportedGrid.cells.map((exportedCell, index) => {
       const cell = this.createCell(exportedCell, index);
+      if (cell.isStart()) {
+        this.startingCell = cell;
+      }
       this.scene.add.existing(cell);
       return cell;
     });
+    const path = this.createPath();
 
     // const curve = new Phaser.Curves.Curve()
     // curve.
@@ -50,7 +69,30 @@ export class GameMap extends Phaser.GameObjects.Container {
     //   if prevCell.isStar
     // })
     // path.add()
-    this.createPath();
+    this.path = path;
+  }
+
+  updateEnemies(time: number, delta: number) {
+    this.enemies.forEach((specifiedEnemy) =>
+      specifiedEnemy.update(time, delta)
+    );
+  }
+
+  spawnEnemy(data: EnemyTemplate) {
+    const x = this.startingCell.x;
+    const y = this.startingCell.y;
+
+    const enemy = new Enemy(
+      this.scene,
+      { x, y },
+      this.cellSize,
+      data,
+      this.path,
+      {
+        onEndReached: (...args) => this.onEndReachedByEnemy(...args),
+      }
+    );
+    this.enemies.push(enemy);
   }
 
   makePickable(data: TowerTemplate) {
@@ -66,6 +108,14 @@ export class GameMap extends Phaser.GameObjects.Container {
     this.cells.forEach((specifiedCell) => {
       specifiedCell.makeUnpickable();
     });
+  }
+
+  private onEndReachedByEnemy(enemy: Enemy) {
+    console.info(`# Destroy enemy who reached an end (id: ${enemy.id})`);
+    this.enemies = this.enemies.filter(
+      (specifiedEnemy) => specifiedEnemy.id !== enemy.id
+    );
+    enemy.destroy(true);
   }
 
   private createPath() {
@@ -93,26 +143,24 @@ export class GameMap extends Phaser.GameObjects.Container {
       },
     });
     path.draw(graphics);
+
+    return path;
   }
 
   private createCell(exportedCell: ExportedCell, index: number) {
     const columnIndex = index % this.columns;
     const rowIndex = Math.floor(index / this.rows);
-    const size: Size = {
-      width: this.mapSize.width / this.columns,
-      height: this.mapSize.height / this.rows,
-    };
     const position: Position = {
       x:
         this.mapPosition.x +
-        columnIndex * size.width -
+        columnIndex * this.cellSize.width -
         this.mapSize.width / 2 +
-        size.width / 2,
+        this.cellSize.width / 2,
       y:
         this.mapPosition.y +
-        rowIndex * size.height -
+        rowIndex * this.cellSize.height -
         this.mapSize.height / 2 +
-        size.height / 2,
+        this.cellSize.height / 2,
     };
 
     const isStart =
@@ -141,7 +189,7 @@ export class GameMap extends Phaser.GameObjects.Container {
       this.scene,
       new CellId(rowIndex, columnIndex),
       position,
-      size,
+      this.cellSize,
       options
     );
   }

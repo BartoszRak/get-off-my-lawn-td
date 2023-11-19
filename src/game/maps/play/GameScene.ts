@@ -18,6 +18,10 @@ import { machineGunTowerTemplate } from "./towers/specified-towers/MachineGunTow
 import { TowerImage, TowerImages } from "../../TowerImage";
 import { canonTowerTemplate } from "./towers/specified-towers/CanonTower";
 import { missileLauncherTowerTemplate } from "./towers/specified-towers/MissileLauncher";
+import { EnemyAtlas, EnemyAtlases } from "./enemies/EnemyAtlas";
+import { Enemy } from "./enemies/Enemy";
+import { applyEnemyMultiplier } from "./enemies/applyEnemyMultiplier";
+import { basicZombieEnemyTemplate } from "./enemies/BasicZombie";
 
 export class GameScene extends Phaser.Scene {
   private map!: GameMap;
@@ -35,9 +39,16 @@ export class GameScene extends Phaser.Scene {
   private passiveIncomeIntervalInMs = 2000;
   private passiveIncomeTimerEvent!: Phaser.Time.TimerEvent;
 
+  private readonly enemiesPerWave = 10;
+  private readonly enemySpawnIntervalInMs = 1000;
+
+  private spawnEnemiesTimerEvent?: Phaser.Time.TimerEvent;
+
   private readonly towers: Tower[] = [];
 
   private placingTower?: TowerTile = undefined;
+
+  private isStopped = true;
 
   constructor(...data: any) {
     console.log("--- construct game scene", data);
@@ -107,6 +118,31 @@ export class GameScene extends Phaser.Scene {
         .filter(isDefined);
 
     this.load.image(towerImagesConfigurations);
+
+    const enemiesAtlasConfigurations: Phaser.Types.Loader.FileTypes.AtlasJSONFileConfig[] =
+      Object.values(EnemyAtlas)
+        .map(
+          (
+            enemyKey
+          ): Phaser.Types.Loader.FileTypes.AtlasJSONFileConfig | null => {
+            console.info(`# Creating atlas for enemy "${enemyKey}"`);
+            const atlasConfig = EnemyAtlases[enemyKey];
+            if (!atlasConfig) {
+              const error = new Error(
+                `!!! Missing atlas config for enemy "${enemyKey}"`
+              );
+              console.error(error);
+              return null;
+            }
+            return {
+              key: enemyKey,
+              textureURL: atlasConfig.image,
+              atlasURL: atlasConfig.json,
+            };
+          }
+        )
+        .filter(isDefined);
+    this.load.atlas(enemiesAtlasConfigurations);
   }
 
   create(data: GameSceneData) {
@@ -123,7 +159,7 @@ export class GameScene extends Phaser.Scene {
         width: 100,
         height: 100,
       },
-      undefined,
+      this.isStopped,
       {
         onPlay: () => this.onPlay(),
         onStop: () => this.onStop(),
@@ -188,8 +224,10 @@ export class GameScene extends Phaser.Scene {
     this.add.existing(this.map);
   }
 
-  update() {
-    // console.log(`### GameScene Update (${Date.now()})`)
+  update(time: number, delta: number) {
+    if (!this.isStopped) {
+      this.map.updateEnemies(time, delta);
+    }
   }
 
   private createPassiveIncomeTimerEvent() {
@@ -200,6 +238,28 @@ export class GameScene extends Phaser.Scene {
       paused: true,
     });
   }
+
+  private createSpawnEnemiesTimerEvent(wave: WaveTile) {
+    const multiplier = 1 + wave.getDetails().index / 10;
+    const data = applyEnemyMultiplier(basicZombieEnemyTemplate, multiplier);
+    const count = this.enemiesPerWave;
+    const delay = this.enemySpawnIntervalInMs;
+
+    console.info(`# Spawn enemies for wave ${wave.getDetails().name}`, {
+      count,
+      delay,
+      data,
+      multiplier,
+    });
+
+    return this.time.addEvent({
+      callback: () => this.map.spawnEnemy(data),
+      delay,
+      repeat: count,
+      paused: false,
+    });
+  }
+
   private cellPicked(cell: GameCell) {
     console.info("# Cell to place tower picked!");
     console.info("---> Picked cell:", cell);
@@ -248,19 +308,33 @@ export class GameScene extends Phaser.Scene {
 
   private onPlay() {
     console.info("# GameScene - play");
+    this.isStopped = false;
     this.startPassiveIncome();
     this.wavesBar.start();
+    if (this.spawnEnemiesTimerEvent) {
+      this.spawnEnemiesTimerEvent.paused = false;
+    }
   }
 
   private onStop() {
     console.info("# GameScene - stop");
+    this.isStopped = true;
     this.stopPassiveIncome();
     this.wavesBar.stop();
+    if (this.spawnEnemiesTimerEvent) {
+      this.spawnEnemiesTimerEvent.paused = true;
+    }
   }
 
   private onWaveChanged(wave: WaveTile) {
+    console.info("# Wave changed", wave);
     const text = this.createWaveInfoMessage(wave.getDetails().index);
     this.wavesInfo.setText(text);
+    if (this.spawnEnemiesTimerEvent) {
+      this.spawnEnemiesTimerEvent?.destroy();
+      this.spawnEnemiesTimerEvent = undefined;
+    }
+    this.spawnEnemiesTimerEvent = this.createSpawnEnemiesTimerEvent(wave);
   }
 
   private onTowerPicked(tile: TowerTile) {

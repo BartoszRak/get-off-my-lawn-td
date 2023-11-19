@@ -26,7 +26,7 @@ export class WavesBar extends Phaser.GameObjects.Rectangle {
 
   private readonly tilesPerBatch = 10;
   private tilesMargin = 1;
-  private readonly tileSpeed = 100;
+  private readonly tileSpeed = 15;
 
   constructor(
     scene: Phaser.Scene,
@@ -77,6 +77,10 @@ export class WavesBar extends Phaser.GameObjects.Rectangle {
 
   start() {
     this.tilesPhysicsGroup.setVelocityX(-this.tileSpeed);
+    const { onWaveChanged } = this.callbacks;
+    if (onWaveChanged) {
+      onWaveChanged(this.currentTile);
+    }
   }
 
   stop() {
@@ -217,7 +221,7 @@ export class WavesBar extends Phaser.GameObjects.Rectangle {
     const rectangle = new Phaser.GameObjects.Rectangle(
       this.scene,
       this.x,
-      this.y-height,
+      this.y - height,
       width,
       height,
       Color.Contour
