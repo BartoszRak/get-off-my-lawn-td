@@ -23,6 +23,7 @@ export enum RawColor {
 
   Warn = "#FFFF00",
   WarnContrast = "#000000",
+  
 }
 
 export enum Color {

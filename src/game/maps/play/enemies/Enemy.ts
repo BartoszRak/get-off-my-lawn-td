@@ -1,6 +1,7 @@
 import { Position, Size } from "../../../../utils";
 import { EnemyAtlas } from "./EnemyAtlas";
 import * as uuid from "uuid";
+import { LifeBar } from "./LifeBar";
 
 export interface EnemyTemplate {
   name: string;
@@ -15,10 +16,10 @@ export interface EnemyOptions {
 
 export const enemyDefaultOptions: EnemyOptions = {};
 
-export class Enemy extends Phaser.GameObjects.Container {
+export class Enemy extends Phaser.GameObjects.Group {
   private readonly sprite: Phaser.GameObjects.Sprite;
+  private readonly lifeBar: LifeBar;
   // private readonly pathPoints: Phaser.Math.Vector2[]
-  private readonly physicsGroup: Phaser.Physics.Arcade.Group;
   public readonly id = uuid.v4();
 
   private time = 0;
@@ -26,56 +27,71 @@ export class Enemy extends Phaser.GameObjects.Container {
   private readonly options: EnemyOptions;
   private endReached = false;
 
+  private readonly currentLife: number;
+  private readonly maxLife: number;
+
   constructor(
     scene: Phaser.Scene,
     position: Position,
-    size: Size,
+    private readonly size: Size,
     data: EnemyTemplate,
     private readonly path: Phaser.Curves.Path,
     options: Partial<EnemyOptions> = {}
   ) {
-    const { x, y } = position;
-    super(scene, x, y);
+    super(scene);
+    this.currentLife = data.life / 2;
+    this.maxLife = data.life;
     const mergedOptions = { ...enemyDefaultOptions, ...options };
     this.options = mergedOptions;
 
     const sprite = this.createSprite(scene, position, data.atlas);
+    const lifeBarHeight = 7;
+    const lifeBar = new LifeBar(
+      scene,
+      {
+        x: position.x,
+        y: position.y - size.height / 1.5,
+      },
+      {
+        width: size.width * 0.8,
+        height: lifeBarHeight,
+      },
+      this.currentLife / this.maxLife
+    );
+    setTimeout(() => {
+      lifeBar.setLife(0.2);
+    }, 1000);
     // console.log("--- fame names", sprite.texture.getFrameNames());
     // console.log("--- path points", path.getPoints(), path.getPoints().length);
     // this.pathPoints = path.getPoints()
-    // const animation = this.scene.anims.create({
-    //   key: "walk",
-    //   frames: sprite.texture.getFrameNames().map((specifiedName) => ({
-    //     key: data.atlas,
-    //     frame: specifiedName,
-    //   })),
-    //   frameRate: 3,
-    //   repeat: -1,
-    // });
-    this.sprite = sprite;
-    this.add(sprite);
-    this.scene.add.existing(sprite);
-
-    this.physicsGroup = this.scene.physics.add.group(this, {
-      collideWorldBounds: false,
-      name: "EnemyPhysicsGroup",
+    const frames = sprite.texture
+      .getFrameNames()
+      .sort()
+      .map((specifiedName) => ({
+        key: data.atlas,
+        frame: specifiedName,
+      }));
+    console.log("### frames", frames);
+    const animation = this.scene.anims.create({
+      key: "walk",
+      frames,
+      frameRate: 9,
+      repeat: -1,
+      yoyo: true,
     });
+    if (animation !== false) {
+      console.info(`# Play enemy animation "${animation.key}"`);
+      sprite.play(animation.key);
+    }
+    this.sprite = sprite;
+    this.lifeBar = lifeBar;
+    this.addMultiple([sprite, ...lifeBar.children.entries]);
+    this.children.entries.forEach((specifiedChildren) =>
+      this.scene.add.existing(specifiedChildren)
+    );
 
     const speedAsDuration = (path.getLength() / data.speed) * 100;
     this.duration = speedAsDuration;
-    // console.log(
-    //   `--- speed: ${
-    //     data.speed
-    //   } / length: ${path.getLength()} / speedAsDuration: ${speedAsDuration}`
-    // );
-    // this.scene.add
-    //   .follower(path, x, y, EnemyAtlas.BasicZombieFront)
-    //   .startFollow({
-    //     duration: speedAsDuration,
-    //     onUpdate: (tween) => {
-    //       tween
-    //     }
-    //   });
   }
 
   update(time: number, delta: number) {
@@ -97,6 +113,7 @@ export class Enemy extends Phaser.GameObjects.Container {
 
       const newPoint = this.path.getPoint(delta);
       this.sprite.setPosition(newPoint.x, newPoint.y);
+      this.lifeBar.setPosition(newPoint.x, newPoint.y - this.size.height / 1.5);
     }
   }
 
