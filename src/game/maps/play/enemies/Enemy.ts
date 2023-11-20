@@ -58,12 +58,6 @@ export class Enemy extends Phaser.GameObjects.Group {
       },
       this.currentLife / this.maxLife
     );
-    setTimeout(() => {
-      lifeBar.setLife(0.2);
-    }, 1000);
-    // console.log("--- fame names", sprite.texture.getFrameNames());
-    // console.log("--- path points", path.getPoints(), path.getPoints().length);
-    // this.pathPoints = path.getPoints()
     const frames = sprite.texture
       .getFrameNames()
       .sort()
@@ -71,18 +65,17 @@ export class Enemy extends Phaser.GameObjects.Group {
         key: data.atlas,
         frame: specifiedName,
       }));
-    console.log("### frames", frames);
-    const animation = this.scene.anims.create({
-      key: "walk",
-      frames,
-      frameRate: 9,
-      repeat: -1,
-      yoyo: true,
-    });
-    if (animation !== false) {
-      console.info(`# Play enemy animation "${animation.key}"`);
-      sprite.play(animation.key);
-    }
+    const animationKey = `${Enemy.name}_walk`;
+    const animation =
+      this.scene.anims.get(animationKey) ||
+      this.scene.anims.create({
+        key: animationKey,
+        frames,
+        frameRate: 9,
+        repeat: -1,
+        yoyo: true,
+      });
+    sprite.play(animation.key);
     this.sprite = sprite;
     this.lifeBar = lifeBar;
     this.addMultiple([sprite, ...lifeBar.children.entries]);
