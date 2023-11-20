@@ -6,6 +6,9 @@ export interface TowerLevel {
     barrel: TowerImage;
     bullet: TowerImage;
   };
+  range: number
+  rateOfFire: number
+  damage: number
   cost: number;
 }
 

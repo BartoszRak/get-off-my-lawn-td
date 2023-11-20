@@ -71,11 +71,9 @@ export class GameCell extends Phaser.GameObjects.Rectangle {
   makePickable(data: TowerTemplate) {
     if (!this.options.isPickable) {
       this.options.isPickable = true;
-      this.previewTower = this.createTower(data).setAlpha(0);
-
       this.setInteractive();
       this.setStrokeStyle(2, Color.Warn);
-      this.attachCallbacks();
+      this.attachCallbacks(data);
     }
   }
 
@@ -113,7 +111,7 @@ export class GameCell extends Phaser.GameObjects.Rectangle {
     );
   }
 
-  private attachCallbacks() {
+  private attachCallbacks(data: TowerTemplate) {
     const { onPicked: onClick } = this.options;
     if (onClick) {
       this.on(Phaser.Input.Events.POINTER_UP, () => {
@@ -121,15 +119,14 @@ export class GameCell extends Phaser.GameObjects.Rectangle {
       });
     }
     this.on(Phaser.Input.Events.POINTER_OVER, () => {
-      this.setFillStyle(Color.Success, 0.6);
-      if (this.previewTower) {
-        this.previewTower.setAlpha(0.3);
-      }
+      this.setFillStyle(Color.Success, 0.4);
+      this.previewTower = this.createTower(data).setAlpha(0.3);
     });
     this.on(Phaser.Input.Events.POINTER_OUT, () => {
       this.setFillStyle(this.specifiedColor);
       if (this.previewTower) {
-        this.previewTower.setAlpha(0);
+        this.previewTower.destroy(true);
+        this.previewTower = undefined;
       }
     });
     this.scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {

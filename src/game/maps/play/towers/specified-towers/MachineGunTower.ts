@@ -11,6 +11,9 @@ export const machineGunTowerTemplate: TowerTemplate = {
         barrel: TowerImage.MachineGun1,
         bullet: TowerImage.MachineGunBullet,
       },
+      range: 100,
+      rateOfFire: 2,
+      damage: 6,
     },
     {
       cost: 120,
@@ -19,6 +22,9 @@ export const machineGunTowerTemplate: TowerTemplate = {
         barrel: TowerImage.MachineGun2,
         bullet: TowerImage.MachineGunBullet,
       },
+      range: 115,
+      rateOfFire: 2.5,
+      damage: 6,
     },
     {
       cost: 140,
@@ -27,6 +33,9 @@ export const machineGunTowerTemplate: TowerTemplate = {
         barrel: TowerImage.MachineGun3,
         bullet: TowerImage.MachineGunBullet,
       },
+      range: 130,
+      rateOfFire: 3,
+      damage: 7,
     },
   ],
 };

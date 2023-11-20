@@ -11,6 +11,9 @@ export const canonTowerTemplate: TowerTemplate = {
         barrel: TowerImage.Cannon1,
         bullet: TowerImage.CannonBullet,
       },
+      range: 100,
+      rateOfFire: 1,
+      damage: 10,
     },
     {
       cost: 120,
@@ -19,6 +22,9 @@ export const canonTowerTemplate: TowerTemplate = {
         barrel: TowerImage.Cannon2,
         bullet: TowerImage.CannonBullet,
       },
+      range: 120,
+      rateOfFire: 1.1,
+      damage: 12,
     },
     {
       cost: 140,
@@ -27,6 +33,9 @@ export const canonTowerTemplate: TowerTemplate = {
         barrel: TowerImage.Cannon3,
         bullet: TowerImage.CannonBullet,
       },
+      range: 140,
+      rateOfFire: 1.2,
+      damage: 14,
     },
   ],
 };
