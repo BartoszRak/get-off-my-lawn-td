@@ -17,7 +17,13 @@ export enum TowerImage {
   UniversalTowerBase = "universal-tower-base",
 }
 
-export const TowerImages: Record<string, string> = {
+const foo = <T extends Record<string, string>>(value: T) => {
+  console.log(value);
+};
+
+foo(TowerImage)
+
+export const towerImages: Record<string, string> = {
   [TowerImage.MachineGun1]: "./assets/towers/machine_gun/machine_gun1.png",
   [TowerImage.MachineGun2]: "./assets/towers/machine_gun/machine_gun2.png",
   [TowerImage.MachineGun3]: "./assets/towers/machine_gun/machine_gun3.png",

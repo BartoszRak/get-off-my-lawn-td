@@ -1,6 +1,6 @@
 import { Position, Size } from "../../../../../utils";
 import { Color } from "../../../../Color";
-import { Image } from "../../../../Images";
+import { Image } from "../../../../Image";
 import { TowerImage } from "../../../../TowerImage";
 import { TowerTemplate } from "../TowerTemplate";
 

@@ -4,7 +4,7 @@ import { RawMap, RawMaps } from "../RawMaps";
 import { ExportedGrid } from "../builder/ExportedGrid";
 import { Position, Size } from "../../../utils";
 import { GameMap } from "./GameMap";
-import { Image, Images } from "../../Images";
+import { Image, Images } from "../../Image";
 import { Label } from "../../shared";
 
 export class PickMapScene extends Phaser.Scene {

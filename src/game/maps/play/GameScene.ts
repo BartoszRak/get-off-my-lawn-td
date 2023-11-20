@@ -1,6 +1,6 @@
 import { Position, Size, isDefined } from "../../../utils";
 import { RawColor } from "../../Color";
-import { Image, Images } from "../../Images";
+import { Image, Images } from "../../Image";
 import { SceneKey } from "../../SceneKey";
 import { ExportedGrid } from "../builder/ExportedGrid";
 import { GameMap } from "./GameMap";
@@ -15,15 +15,22 @@ import { TowerTile } from "./towers/TowerTile";
 import { GameCell } from "./GameCell";
 import { Tower } from "./towers/specified-towers/Tower";
 import { machineGunTowerTemplate } from "./towers/specified-towers/MachineGunTower";
-import { TowerImage, TowerImages } from "../../TowerImage";
+import { TowerImage, towerImages } from "../../TowerImage";
 import { canonTowerTemplate } from "./towers/specified-towers/CanonTower";
 import { missileLauncherTowerTemplate } from "./towers/specified-towers/MissileLauncher";
 import { EnemyAtlas, EnemyAtlases } from "./enemies/EnemyAtlas";
 import { Enemy } from "./enemies/Enemy";
 import { applyEnemyMultiplier } from "./enemies/applyEnemyMultiplier";
 import { basicZombieEnemyTemplate } from "./enemies/BasicZombie";
+import {
+  createImagesConfigurations,
+  createSoundsConfigurations,
+} from "../../shared";
+import { Sound, sounds } from "../../Sound";
 
 export class GameScene extends Phaser.Scene {
+  private waveChangedSound!: Phaser.Sound.BaseSound;
+
   private map!: GameMap;
   private heartsBar!: HeartsBar;
   private wavesBar!: WavesBar;
@@ -92,32 +99,15 @@ export class GameScene extends Phaser.Scene {
     this.load.image(...Images[Image.CursorHand]);
 
     //Towers
-    const towerImagesConfigurations: Phaser.Types.Loader.FileTypes.ImageFileConfig[] =
-      Object.values(TowerImage)
-        .map(
-          (
-            specifiedTower
-          ): Phaser.Types.Loader.FileTypes.ImageFileConfig | null => {
-            const path = TowerImages[specifiedTower];
-            console.info(
-              `# Creating config for tower image "${specifiedTower}"`
-            );
-            if (!path) {
-              const error = new Error(
-                `!!! Missing tower image path for "${specifiedTower}"`
-              );
-              console.error(error);
-              return null;
-            }
-            return {
-              key: specifiedTower,
-              url: path,
-            };
-          }
-        )
-        .filter(isDefined);
-
+    const towerImagesConfigurations = createImagesConfigurations(
+      TowerImage,
+      towerImages
+    );
     this.load.image(towerImagesConfigurations);
+
+    // Sounds
+    const soundsConfigurations = createSoundsConfigurations(Sound, sounds);
+    this.load.audio(soundsConfigurations);
 
     const enemiesAtlasConfigurations: Phaser.Types.Loader.FileTypes.AtlasJSONFileConfig[] =
       Object.values(EnemyAtlas)
@@ -217,6 +207,8 @@ export class GameScene extends Phaser.Scene {
       10,
       this.balance
     );
+
+    this.waveChangedSound = this.sound.add(Sound.Bell);
 
     this.passiveIncomeTimerEvent = this.createPassiveIncomeTimerEvent();
 
@@ -328,6 +320,7 @@ export class GameScene extends Phaser.Scene {
 
   private onWaveChanged(wave: WaveTile) {
     console.info("# Wave changed", wave);
+    this.waveChangedSound.play()
     const text = this.createWaveInfoMessage(wave.getDetails().index);
     this.wavesInfo.setText(text);
     if (this.spawnEnemiesTimerEvent) {

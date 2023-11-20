@@ -1,4 +1,4 @@
-import { Image, Images } from "../../Images";
+import { Image, Images } from "../../Image";
 import { SceneKey } from "../../SceneKey";
 import { BuilderGrid } from "./BuilderGrid";
 import { saveAs } from "file-saver";

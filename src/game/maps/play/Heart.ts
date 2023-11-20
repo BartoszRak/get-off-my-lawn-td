@@ -1,5 +1,5 @@
 import { Position, Size } from "../../../utils";
-import { Image } from "../../Images";
+import { Image } from "../../Image";
 
 export class Heart extends Phaser.GameObjects.Image {
   constructor(
