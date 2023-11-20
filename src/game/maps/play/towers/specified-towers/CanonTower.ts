@@ -1,8 +1,10 @@
+import { Sound } from "../../../../Sound";
 import { TowerImage } from "../../../../TowerImage";
 import { TowerTemplate } from "../TowerTemplate";
 
 export const canonTowerTemplate: TowerTemplate = {
   name: "Cannon gun",
+  shotSound: Sound.CannonShoot,
   levels: [
     {
       cost: 100,

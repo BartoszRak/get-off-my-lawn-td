@@ -1,6 +1,7 @@
 import { Position, Size, isDefined, isKeyDefined } from "../../../../../utils";
 import { Color } from "../../../../Color";
 import { Image } from "../../../../Image";
+import { Sound } from "../../../../Sound";
 import { TowerImage } from "../../../../TowerImage";
 import { Enemy } from "../../enemies/Enemy";
 import { EnemyWithDistance } from "../../enemies/EnemyWithDistance";
@@ -30,6 +31,7 @@ export class Tower extends Phaser.GameObjects.Group {
   private lockedOn?: EnemyWithDistance;
   private shootingTimerEvent?: Phaser.Time.TimerEvent;
   private readonly bulletsGroup: Phaser.GameObjects.Group;
+  private readonly shootSound: Phaser.Sound.BaseSound;
 
   constructor(
     scene: Phaser.Scene,
@@ -53,6 +55,7 @@ export class Tower extends Phaser.GameObjects.Group {
     this.baseChildrens = [this.wrapper, this.base, this.barrel];
     this.addMultiple([...this.baseChildrens, this.range].filter(isDefined));
     this.bulletsGroup = new Phaser.GameObjects.Group(this.scene);
+    this.shootSound = this.scene.sound.add(data.shotSound);
   }
 
   stop() {
@@ -114,6 +117,7 @@ export class Tower extends Phaser.GameObjects.Group {
 
   private shootBullet(enemyWithDistance: EnemyWithDistance) {
     console.info("# Bullet shot");
+    this.shootSound.play();
     const { images } = this.getCurrentData();
     const bullet = new TowerBullet(
       this.scene,
