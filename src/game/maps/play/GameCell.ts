@@ -1,15 +1,16 @@
 import { Position, Size, isDefined } from "../../../utils";
 import { Color } from "../../Color";
 import { CellId } from "../CellId";
-import { Tower } from "./towers/specified-towers/Tower";
+import { Tower, TowerOptions } from "./towers/specified-towers/Tower";
 import { TowerTemplate } from "./towers/TowerTemplate";
 
-interface GameCellOptions {
+export interface GameCellOptions {
   isPath?: boolean;
   isStart?: boolean;
   isEnd?: boolean;
   isPickable: boolean;
   onPicked?: (cell: GameCell) => void;
+  onTowerPlaced?: (tower: Tower) => void;
   towerSizePercentage: number;
 }
 
@@ -65,7 +66,12 @@ export class GameCell extends Phaser.GameObjects.Rectangle {
   }
 
   placeTower(data: TowerTemplate) {
-    this.tower = this.createTower(data);
+    const { onTowerPlaced } = this.options;
+    const createdTower = this.createTower(data);
+    this.tower = createdTower;
+    if (onTowerPlaced) {
+      onTowerPlaced(createdTower);
+    }
   }
 
   makePickable(data: TowerTemplate) {
@@ -92,7 +98,7 @@ export class GameCell extends Phaser.GameObjects.Rectangle {
     }
   }
 
-  private createTower(data: TowerTemplate) {
+  private createTower(data: TowerTemplate, options?: Partial<TowerOptions>) {
     const width = this.options.towerSizePercentage * this.width;
     const height = this.options.towerSizePercentage * this.height;
     const x = this.x;
@@ -107,7 +113,8 @@ export class GameCell extends Phaser.GameObjects.Rectangle {
         width,
         height,
       },
-      data
+      data,
+      options
     );
   }
 
@@ -120,7 +127,9 @@ export class GameCell extends Phaser.GameObjects.Rectangle {
     }
     this.on(Phaser.Input.Events.POINTER_OVER, () => {
       this.setFillStyle(Color.Success, 0.4);
-      this.previewTower = this.createTower(data).setAlpha(0.3);
+      this.previewTower = this.createTower(data, {
+        displayRange: true,
+      }).setAlpha(0.3);
     });
     this.on(Phaser.Input.Events.POINTER_OUT, () => {
       this.setFillStyle(this.specifiedColor);

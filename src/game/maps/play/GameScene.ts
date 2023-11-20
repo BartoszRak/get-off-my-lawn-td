@@ -41,7 +41,7 @@ export class GameScene extends Phaser.Scene {
   private bankAccount!: BankAccount;
 
   private isPlacingTower = false;
-  private balance = 120;
+  private balance = 320;
   private passiveIncome = 20;
   private passiveIncomeIntervalInMs = 2000;
   private passiveIncomeTimerEvent!: Phaser.Time.TimerEvent;
@@ -219,6 +219,7 @@ export class GameScene extends Phaser.Scene {
   update(time: number, delta: number) {
     if (!this.isStopped) {
       this.map.updateEnemies(time, delta);
+      this.map.updateTowers(time, delta);
     }
   }
 
@@ -320,7 +321,7 @@ export class GameScene extends Phaser.Scene {
 
   private onWaveChanged(wave: WaveTile) {
     console.info("# Wave changed", wave);
-    this.waveChangedSound.play()
+    this.waveChangedSound.play();
     const text = this.createWaveInfoMessage(wave.getDetails().index);
     this.wavesInfo.setText(text);
     if (this.spawnEnemiesTimerEvent) {

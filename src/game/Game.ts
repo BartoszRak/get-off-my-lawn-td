@@ -47,3 +47,4 @@ const createGame = (parent: HTMLElement | string) => {
 };
 
 export const game = createGame(GameParentId);
+

@@ -5,3 +5,4 @@ export type { PositionAndSize } from "./positionAndSize";
 export { hslToRgb } from "./hslToRgb";
 export { numberToColorHsl } from "./numberToColorHsl";
 export { rgbIntToHex } from "./rgbIntToHex";
+export { isKeyDefined } from "./isKeyDefined";

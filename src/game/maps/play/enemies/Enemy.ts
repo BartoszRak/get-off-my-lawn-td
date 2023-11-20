@@ -87,6 +87,11 @@ export class Enemy extends Phaser.GameObjects.Group {
     this.duration = speedAsDuration;
   }
 
+  getCenterPoint() {
+    const vector = new Phaser.Math.Vector2()
+    return this.sprite.getCenter(vector);
+  }
+
   update(time: number, delta: number) {
     if (this.time === -1 || this.endReached) {
       return;

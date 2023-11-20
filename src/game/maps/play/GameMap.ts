@@ -1,7 +1,7 @@
 import { Position, Size, isDefined } from "../../../utils";
 import { ExportedCell } from "../builder/ExportedCell";
 import { ExportedGrid } from "../builder/ExportedGrid";
-import { GameCell } from "./GameCell";
+import { GameCell, GameCellOptions } from "./GameCell";
 import { Color } from "../../Color";
 import { CellId } from "../CellId";
 import { sortBy } from "lodash";
@@ -10,6 +10,7 @@ import { WaveTile } from "./WaveTile";
 import { Enemy, EnemyTemplate } from "./enemies/Enemy";
 import { basicZombieEnemyTemplate } from "./enemies/BasicZombie";
 import { applyEnemyMultiplier } from "./enemies/applyEnemyMultiplier";
+import { Tower } from "./towers/specified-towers/Tower";
 
 export interface GameMapOptions<T> {
   isButton?: boolean;
@@ -31,6 +32,7 @@ export class GameMap extends Phaser.GameObjects.Container {
   private pathIds: CellId[];
 
   private enemies: Enemy[] = [];
+  private towers: Tower[] = [];
 
   constructor(
     scene: Phaser.Scene,
@@ -78,6 +80,12 @@ export class GameMap extends Phaser.GameObjects.Container {
     );
   }
 
+  updateTowers(time: number, delta: number) {
+    this.towers.forEach((specifiedTower) =>
+      specifiedTower.update(this.enemies)
+    );
+  }
+
   spawnEnemy(data: EnemyTemplate) {
     const x = this.startingCell.x;
     const y = this.startingCell.y;
@@ -108,6 +116,10 @@ export class GameMap extends Phaser.GameObjects.Container {
     this.cells.forEach((specifiedCell) => {
       specifiedCell.makeUnpickable();
     });
+  }
+
+  private onTowerPlaced(tower: Tower) {
+    this.towers.push(tower);
   }
 
   private onEndReachedByEnemy(enemy: Enemy) {
@@ -174,15 +186,16 @@ export class GameMap extends Phaser.GameObjects.Container {
     if (isStart) {
       this.wasStartMarked = true;
     }
-    const baseOptions = {
+    const baseOptions: Partial<GameCellOptions> = {
       isPath: exportedCell.isPath,
       isStart,
       isEnd,
     };
-    const options = this.options.onPicked
+    const options: Partial<GameCellOptions> = this.options.onPicked
       ? {
           ...baseOptions,
           onPicked: this.options.onPicked,
+          onTowerPlaced: (...args) => this.onTowerPlaced(...args),
         }
       : baseOptions;
     return new GameCell(
