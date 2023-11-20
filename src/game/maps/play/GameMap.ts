@@ -86,6 +86,10 @@ export class GameMap extends Phaser.GameObjects.Container {
     );
   }
 
+  stopTowers() {
+    this.towers.forEach((specifiedTower) => specifiedTower.stop());
+  }
+
   spawnEnemy(data: EnemyTemplate) {
     const x = this.startingCell.x;
     const y = this.startingCell.y;

@@ -12,7 +12,7 @@ export const machineGunTowerTemplate: TowerTemplate = {
         bullet: TowerImage.MachineGunBullet,
       },
       range: 100,
-      rateOfFire: 2,
+      rateOfFire: 0.5,
       damage: 6,
     },
     {
@@ -23,7 +23,7 @@ export const machineGunTowerTemplate: TowerTemplate = {
         bullet: TowerImage.MachineGunBullet,
       },
       range: 115,
-      rateOfFire: 2.5,
+      rateOfFire: 1,
       damage: 6,
     },
     {
@@ -34,7 +34,7 @@ export const machineGunTowerTemplate: TowerTemplate = {
         bullet: TowerImage.MachineGunBullet,
       },
       range: 130,
-      rateOfFire: 3,
+      rateOfFire: 1.5,
       damage: 7,
     },
   ],

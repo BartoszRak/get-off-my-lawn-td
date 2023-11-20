@@ -317,6 +317,7 @@ export class GameScene extends Phaser.Scene {
     if (this.spawnEnemiesTimerEvent) {
       this.spawnEnemiesTimerEvent.paused = true;
     }
+    this.map.stopTowers();
   }
 
   private onWaveChanged(wave: WaveTile) {

@@ -5,6 +5,7 @@ import { TowerImage } from "../../../../TowerImage";
 import { Enemy } from "../../enemies/Enemy";
 import { EnemyWithDistance } from "../../enemies/EnemyWithDistance";
 import { TowerTemplate } from "../TowerTemplate";
+import { TowerBullet } from "./TowerBullet";
 
 export interface TowerOptions {
   showOutline: boolean;
@@ -27,6 +28,8 @@ export class Tower extends Phaser.GameObjects.Group {
     | Phaser.GameObjects.Image
   )[];
   private lockedOn?: EnemyWithDistance;
+  private shootingTimerEvent?: Phaser.Time.TimerEvent;
+  private readonly bulletsGroup: Phaser.GameObjects.Group;
 
   constructor(
     scene: Phaser.Scene,
@@ -49,6 +52,13 @@ export class Tower extends Phaser.GameObjects.Group {
 
     this.baseChildrens = [this.wrapper, this.base, this.barrel];
     this.addMultiple([...this.baseChildrens, this.range].filter(isDefined));
+    this.bulletsGroup = new Phaser.GameObjects.Group(this.scene);
+  }
+
+  stop() {
+    (this.bulletsGroup.getChildren() as TowerBullet[]).forEach(
+      (specifiedBullet) => specifiedBullet.stop()
+    );
   }
 
   getMaxLevel() {
@@ -72,10 +82,49 @@ export class Tower extends Phaser.GameObjects.Group {
       this.updateRotation(this.lockedOn);
       this.updateLaser(this.lockedOn);
     }
+    this.updateAllBullets();
   }
 
-  lockOn(enemyWithDistance: EnemyWithDistance) {
+  private updateAllBullets() {
+    (this.bulletsGroup.getChildren() as TowerBullet[]).forEach(
+      (specifiedBullet) => specifiedBullet.update()
+    );
+  }
+
+  private lockOn(enemyWithDistance: EnemyWithDistance) {
     this.lockedOn = enemyWithDistance;
+    const { rateOfFire } = this.getCurrentData();
+    const shootsIntervalInMs = 1000 / rateOfFire;
+    console.info(
+      `# Lock on (rate of fire: ${rateOfFire}, interval in ms: ${shootsIntervalInMs})`
+    );
+    if (this.shootingTimerEvent) {
+      this.shootingTimerEvent.paused = true;
+      this.shootingTimerEvent.remove();
+      this.shootingTimerEvent = undefined;
+    }
+
+    this.shootBullet(enemyWithDistance);
+    this.shootingTimerEvent = this.scene.time.addEvent({
+      delay: shootsIntervalInMs,
+      loop: true,
+      callback: () => this.shootBullet(enemyWithDistance),
+    });
+  }
+
+  private shootBullet(enemyWithDistance: EnemyWithDistance) {
+    console.info("# Bullet shot");
+    const { images } = this.getCurrentData();
+    const bullet = new TowerBullet(
+      this.scene,
+      this.position,
+      this.size,
+      enemyWithDistance.enemy,
+      {
+        image: images.bullet,
+      }
+    );
+    this.bulletsGroup.add(bullet);
   }
 
   private updateLaser(lockedEnemy: EnemyWithDistance) {
