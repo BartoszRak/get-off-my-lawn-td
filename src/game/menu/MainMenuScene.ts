@@ -1,11 +1,7 @@
 import { Image, Images } from "../Image";
 import { SceneKey } from "../SceneKey";
-import { Label } from "../shared";
-
-interface ButtonWithText {
-  button: Phaser.GameObjects.Image;
-  text: Phaser.GameObjects.Text;
-}
+import { Sound, sounds } from "../Sound";
+import { Label, createSoundConfiguration } from "../shared";
 
 interface ButtonConfig {
   text: string;
@@ -29,6 +25,7 @@ export class MainMenuScene extends Phaser.Scene {
     this.load.image(...Images[Image.GlassPanel]);
     this.load.image(...Images[Image.PointerFlat]);
     this.load.image(...Images[Image.CursorHand]);
+    this.load.audio(createSoundConfiguration(Sound.OnHover, sounds));
   }
 
   create() {

@@ -1,5 +1,6 @@
 import { Position, Size } from "../../utils";
 import { Color, RawColor, createColorFromRaw } from "../Color";
+import { Sound } from "../Sound";
 
 export type LabelOptions = {
   color: RawColor;
@@ -35,6 +36,7 @@ export class Label extends Phaser.GameObjects.Container {
   private readonly backgroundColor: RawColor;
   private readonly color: RawColor;
   private readonly disabledAlpha: number;
+  private readonly onHoverSound?: Phaser.Sound.BaseSound;
 
   constructor(
     scene: Phaser.Scene,
@@ -80,6 +82,7 @@ export class Label extends Phaser.GameObjects.Container {
         { onClick, id: preparedId },
         isDisabled
       );
+      this.onHoverSound = this.scene.sound.add(Sound.OnHover);
     }
   }
 
@@ -113,6 +116,9 @@ export class Label extends Phaser.GameObjects.Container {
       // Hover in
       text.setBackgroundColor(RawColor.Success);
       text.setColor(RawColor.SuccessContrast);
+      if (this.onHoverSound) {
+        this.onHoverSound.play(undefined, { volume: 0.3 });
+      }
     });
     text.on(Phaser.Input.Events.POINTER_OUT, () => {
       // Hover out

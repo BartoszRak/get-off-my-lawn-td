@@ -23,8 +23,8 @@ import { Enemy } from "./enemies/Enemy";
 import { applyEnemyMultiplier } from "./enemies/applyEnemyMultiplier";
 import { basicZombieEnemyTemplate } from "./enemies/BasicZombie";
 import {
-  createImagesConfigurations,
-  createSoundsConfigurations,
+  createMultipleImagesConfigurations,
+  createMultipleSoundsConfigurations,
 } from "../../shared";
 import { Sound, sounds } from "../../Sound";
 
@@ -99,14 +99,14 @@ export class GameScene extends Phaser.Scene {
     this.load.image(...Images[Image.CursorHand]);
 
     //Towers
-    const towerImagesConfigurations = createImagesConfigurations(
+    const towerImagesConfigurations = createMultipleImagesConfigurations(
       TowerImage,
       towerImages
     );
     this.load.image(towerImagesConfigurations);
 
     // Sounds
-    const soundsConfigurations = createSoundsConfigurations(Sound, sounds);
+    const soundsConfigurations = createMultipleSoundsConfigurations(Sound, sounds);
     this.load.audio(soundsConfigurations);
 
     const enemiesAtlasConfigurations: Phaser.Types.Loader.FileTypes.AtlasJSONFileConfig[] =
