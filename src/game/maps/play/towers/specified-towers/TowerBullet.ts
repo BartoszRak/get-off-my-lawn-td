@@ -58,7 +58,10 @@ export class TowerBullet extends Phaser.GameObjects.Image {
     );
     const isTargetReached = distance < this.options.hitMargin;
     if (isTargetReached) {
-      this.target.applyDamage(this.options.damage);
+      // Explanation: Apply damage only if target isn't destroyed.
+      if (this.target.active) {
+        this.target.applyDamage(this.options.damage);
+      }
       return this.destroy();
     }
     const angle = Phaser.Math.Angle.BetweenPoints(
