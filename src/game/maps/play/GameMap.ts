@@ -75,9 +75,6 @@ export class GameMap extends Phaser.GameObjects.Container {
   }
 
   updateEnemies(time: number, delta: number) {
-    console.info(
-      `# Update enemies (enemies: ${this.enemiesGroup.getChildren().length})`
-    );
     (this.enemiesGroup.getChildren() as Enemy[]).forEach((specifiedEnemy) =>
       specifiedEnemy.update(time, delta)
     );
