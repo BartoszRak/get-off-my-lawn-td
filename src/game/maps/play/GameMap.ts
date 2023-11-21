@@ -30,8 +30,7 @@ export class GameMap extends Phaser.GameObjects.Container {
   private readonly cellSize: Size;
   private wasStartMarked = false;
   private pathIds: CellId[];
-
-  private enemies: Enemy[] = [];
+  private enemiesGroup: Phaser.GameObjects.Group;
   private towers: Tower[] = [];
 
   constructor(
@@ -72,17 +71,21 @@ export class GameMap extends Phaser.GameObjects.Container {
     // })
     // path.add()
     this.path = path;
+    this.enemiesGroup = new Phaser.GameObjects.Group(this.scene);
   }
 
   updateEnemies(time: number, delta: number) {
-    this.enemies.forEach((specifiedEnemy) =>
+    console.info(
+      `# Update enemies (enemies: ${this.enemiesGroup.getChildren().length})`
+    );
+    (this.enemiesGroup.getChildren() as Enemy[]).forEach((specifiedEnemy) =>
       specifiedEnemy.update(time, delta)
     );
   }
 
   updateTowers(time: number, delta: number) {
     this.towers.forEach((specifiedTower) =>
-      specifiedTower.update(this.enemies)
+      specifiedTower.update(this.enemiesGroup.getChildren() as Enemy[])
     );
   }
 
@@ -99,12 +102,9 @@ export class GameMap extends Phaser.GameObjects.Container {
       { x, y },
       this.cellSize,
       data,
-      this.path,
-      {
-        onEndReached: (...args) => this.onEndReachedByEnemy(...args),
-      }
+      this.path
     );
-    this.enemies.push(enemy);
+    this.enemiesGroup.add(enemy);
   }
 
   makePickable(data: TowerTemplate) {
@@ -124,14 +124,6 @@ export class GameMap extends Phaser.GameObjects.Container {
 
   private onTowerPlaced(tower: Tower) {
     this.towers.push(tower);
-  }
-
-  private onEndReachedByEnemy(enemy: Enemy) {
-    console.info(`# Destroy enemy who reached an end (id: ${enemy.id})`);
-    this.enemies = this.enemies.filter(
-      (specifiedEnemy) => specifiedEnemy.id !== enemy.id
-    );
-    enemy.destroy(true);
   }
 
   private createPath() {

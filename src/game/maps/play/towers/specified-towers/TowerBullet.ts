@@ -6,12 +6,14 @@ export interface TowerBulletOptions {
   speed: number;
   image: TowerImage;
   hitMargin: number;
+  damage: number;
 }
 
 const towerBulletDefaultOptions: TowerBulletOptions = {
   speed: 100,
   image: TowerImage.MachineGunBullet,
   hitMargin: 10,
+  damage: 0,
 };
 
 export class TowerBullet extends Phaser.GameObjects.Image {
@@ -56,6 +58,7 @@ export class TowerBullet extends Phaser.GameObjects.Image {
     );
     const isTargetReached = distance < this.options.hitMargin;
     if (isTargetReached) {
+      this.target.applyDamage(this.options.damage);
       return this.destroy();
     }
     const angle = Phaser.Math.Angle.BetweenPoints(

@@ -118,7 +118,7 @@ export class Tower extends Phaser.GameObjects.Group {
   private shootBullet(enemyWithDistance: EnemyWithDistance) {
     console.info("# Bullet shot");
     this.shootSound.play();
-    const { images } = this.getCurrentData();
+    const { images, damage } = this.getCurrentData();
     const bullet = new TowerBullet(
       this.scene,
       this.position,
@@ -126,6 +126,7 @@ export class Tower extends Phaser.GameObjects.Group {
       enemyWithDistance.enemy,
       {
         image: images.bullet,
+        damage,
       }
     );
     this.bulletsGroup.add(bullet);

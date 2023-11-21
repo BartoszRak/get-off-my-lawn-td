@@ -10,51 +10,48 @@ export interface EnemyTemplate {
   life: number;
 }
 
-export interface EnemyOptions {
-  onEndReached?: (enemy: Enemy) => void;
-}
+export interface EnemyOptions {}
 
 export const enemyDefaultOptions: EnemyOptions = {};
 
-export class Enemy extends Phaser.GameObjects.Group {
+export class Enemy extends Phaser.GameObjects.Container {
   private readonly sprite: Phaser.GameObjects.Sprite;
   private readonly lifeBar: LifeBar;
-  // private readonly pathPoints: Phaser.Math.Vector2[]
   public readonly id = uuid.v4();
 
   private time = 0;
   private readonly duration: number;
   private readonly options: EnemyOptions;
-  private endReached = false;
 
-  private readonly currentLife: number;
+  private currentLife: number;
   private readonly maxLife: number;
+  private readonly lifeBarHeight = 7;
 
   constructor(
     scene: Phaser.Scene,
     position: Position,
-    private readonly size: Size,
+    size: Size,
     data: EnemyTemplate,
     private readonly path: Phaser.Curves.Path,
     options: Partial<EnemyOptions> = {}
   ) {
-    super(scene);
-    this.currentLife = data.life / 2;
+    super(scene, position.x, position.y);
+
+    this.currentLife = data.life;
     this.maxLife = data.life;
     const mergedOptions = { ...enemyDefaultOptions, ...options };
     this.options = mergedOptions;
 
-    const sprite = this.createSprite(scene, position, data.atlas);
-    const lifeBarHeight = 7;
+    const sprite = this.createSprite(scene, { x: 0, y: 0 }, data.atlas);
     const lifeBar = new LifeBar(
       scene,
       {
-        x: position.x,
-        y: position.y - size.height / 1.5,
+        x: 0,
+        y: 0 - size.height / 1.5,
       },
       {
         width: size.width * 0.8,
-        height: lifeBarHeight,
+        height: this.lifeBarHeight,
       },
       this.currentLife / this.maxLife
     );
@@ -78,40 +75,39 @@ export class Enemy extends Phaser.GameObjects.Group {
     sprite.play(animation.key);
     this.sprite = sprite;
     this.lifeBar = lifeBar;
-    this.addMultiple([sprite, ...lifeBar.children.entries]);
-    this.children.entries.forEach((specifiedChildren) =>
-      this.scene.add.existing(specifiedChildren)
-    );
+    this.add([sprite, lifeBar]);
 
     const speedAsDuration = (path.getLength() / data.speed) * 100;
     this.duration = speedAsDuration;
+    this.scene.add.existing(this);
+  }
+
+  applyDamage(damage: number) {
+    const newLife = Math.max(...[this.currentLife - damage, 0]);
+    const isDead = newLife === 0;
+    this.currentLife = newLife;
+    this.lifeBar.setLife(this.currentLife / this.maxLife);
+    if (isDead) {
+      console.warn(`# Enemy dead! (id: ${this.id})`);
+      this.destroy(true);
+    }
   }
 
   getCenterPoint() {
-    const vector = new Phaser.Math.Vector2()
-    return this.sprite.getCenter(vector);
+    return new Phaser.Math.Vector2(this.x, this.y);
   }
 
   update(time: number, delta: number) {
-    if (this.time === -1 || this.endReached) {
+    if (this.time === -1) {
       return;
     }
-
     this.time += delta;
-
     if (this.time >= this.duration) {
-      const { onEndReached } = this.options;
-      if (onEndReached) {
-        this.endReached = true;
-        onEndReached(this);
-      }
-      // TODO: Inform that enemy reached end
+      this.destroy(true);
     } else {
       const delta = this.time / this.duration;
-
       const newPoint = this.path.getPoint(delta);
-      this.sprite.setPosition(newPoint.x, newPoint.y);
-      this.lifeBar.setPosition(newPoint.x, newPoint.y - this.size.height / 1.5);
+      this.setPosition(newPoint.x, newPoint.y);
     }
   }
 
@@ -122,6 +118,7 @@ export class Enemy extends Phaser.GameObjects.Group {
   ) {
     const { x, y } = position;
     const sprite = new Phaser.GameObjects.Sprite(scene, x, y, atlas);
+    this.scene.add.existing(sprite);
     return sprite;
   }
 }

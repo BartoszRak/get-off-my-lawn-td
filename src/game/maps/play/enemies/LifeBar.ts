@@ -1,7 +1,8 @@
+import { wrap } from "module";
 import { Position, Size } from "../../../../utils";
 import { Color } from "../../../Color";
 
-export class LifeBar extends Phaser.GameObjects.Group {
+export class LifeBar extends Phaser.GameObjects.Container {
   private readonly wrapper: Phaser.GameObjects.Rectangle;
   private readonly bar: Phaser.GameObjects.Rectangle;
 
@@ -11,35 +12,32 @@ export class LifeBar extends Phaser.GameObjects.Group {
     private readonly size: Size,
     private lifePercentage: number
   ) {
-    super(scene);
+    super(scene, position.x, position.y);
     const { x, y } = position;
     const { width, height } = size;
     const bar = new Phaser.GameObjects.Rectangle(
       scene,
-      x - width / 2,
-      y,
+      0 - width / 2,
+      0,
       width * lifePercentage,
       height,
       Color.Error
     ).setOrigin(0, 0.5);
     const wrapper = new Phaser.GameObjects.Rectangle(
       scene,
-      x,
-      y,
+      0,
+      0,
       width,
       height
     ).setStrokeStyle(1, Color.Dark);
+    scene.add.existing(bar);
+    scene.add.existing(wrapper);
 
-    this.addMultiple([bar, wrapper]);
+    this.add([bar, wrapper]);
     this.bar = bar;
     this.wrapper = wrapper;
 
     scene.add.existing(this);
-  }
-
-  setPosition(x: number, y: number) {
-    this.wrapper.setPosition(x, y);
-    this.bar.setPosition(x - this.size.width / 2, y);
   }
 
   setLife(percentage: number) {
