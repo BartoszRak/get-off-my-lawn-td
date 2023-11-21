@@ -82,8 +82,13 @@ export class Tower extends Phaser.GameObjects.Group {
       this.lockOn(newTargetToLockOn);
     }
     if (this.lockedOn) {
-      this.updateRotation(this.lockedOn);
-      this.updateLaser(this.lockedOn);
+      const isInRange = this.isEnemyInRange(this.lockedOn.enemy).isInRange;
+      if (isInRange && this.lockedOn.enemy.active) {
+        this.updateRotation(this.lockedOn);
+        this.updateLaser(this.lockedOn);
+      } else {
+        this.removeLock();
+      }
     }
     this.updateAllBullets();
   }
@@ -94,6 +99,11 @@ export class Tower extends Phaser.GameObjects.Group {
     );
   }
 
+  private removeLock() {
+    this.destroyShootingTimerEventEventually();
+    this.lockedOn = undefined;
+  }
+
   private lockOn(enemyWithDistance: EnemyWithDistance) {
     this.lockedOn = enemyWithDistance;
     const { rateOfFire } = this.getCurrentData();
@@ -101,18 +111,21 @@ export class Tower extends Phaser.GameObjects.Group {
     console.info(
       `# Lock on (rate of fire: ${rateOfFire}, interval in ms: ${shootsIntervalInMs})`
     );
-    if (this.shootingTimerEvent) {
-      this.shootingTimerEvent.paused = true;
-      this.shootingTimerEvent.remove();
-      this.shootingTimerEvent = undefined;
-    }
-
+    this.destroyShootingTimerEventEventually();
     this.shootBullet(enemyWithDistance);
     this.shootingTimerEvent = this.scene.time.addEvent({
       delay: shootsIntervalInMs,
       loop: true,
       callback: () => this.shootBullet(enemyWithDistance),
     });
+  }
+
+  private destroyShootingTimerEventEventually() {
+    if (this.shootingTimerEvent) {
+      this.shootingTimerEvent.paused = true;
+      this.shootingTimerEvent.remove();
+      this.shootingTimerEvent = undefined;
+    }
   }
 
   private shootBullet(enemyWithDistance: EnemyWithDistance) {
@@ -169,7 +182,7 @@ export class Tower extends Phaser.GameObjects.Group {
     this.barrel.setAngle(degrees);
   }
 
-  private findNewTargetToLock(enemies: Enemy[]) {
+  private findNewTargetToLock(enemies: Enemy[]): EnemyWithDistance | undefined {
     const targetToLockOn = this.findClosestEnemyInRange(enemies);
     if (!targetToLockOn) {
       return;
@@ -178,7 +191,8 @@ export class Tower extends Phaser.GameObjects.Group {
       return targetToLockOn;
     }
     const isAlreadyLocked = this.lockedOn.enemy.id === targetToLockOn.enemy.id;
-    return isAlreadyLocked ? undefined : targetToLockOn;
+    const preparedTarget = isAlreadyLocked ? undefined : targetToLockOn;
+    return preparedTarget;
   }
 
   private findClosestEnemyInRange(enemies: Enemy[]) {
@@ -187,11 +201,7 @@ export class Tower extends Phaser.GameObjects.Group {
       distance: number;
     }>(
       (closest, specifiedEnemy) => {
-        const distance = Phaser.Math.Distance.BetweenPoints(
-          this.getCenterPoint(),
-          specifiedEnemy.getCenterPoint()
-        );
-        const isInRange = distance <= this.getCurrentData().range;
+        const { isInRange, distance } = this.isEnemyInRange(specifiedEnemy);
         if (distance < closest.distance && isInRange) {
           return {
             distance,
@@ -208,6 +218,18 @@ export class Tower extends Phaser.GameObjects.Group {
     return isKeyDefined(enemyAndDistance, "enemy")
       ? enemyAndDistance
       : undefined;
+  }
+
+  private isEnemyInRange(enemy: Enemy) {
+    const distance = Phaser.Math.Distance.BetweenPoints(
+      this.getCenterPoint(),
+      enemy.getCenterPoint()
+    );
+    const isInRange = distance <= this.getCurrentData().range;
+    return {
+      isInRange,
+      distance,
+    };
   }
 
   private getCurrentData() {
