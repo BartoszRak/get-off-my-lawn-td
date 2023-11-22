@@ -7,6 +7,7 @@ export interface GameCellOptions {
   isEnd?: boolean;
   onPicked?: (cell: GameCell) => void;
   onTowerPlaced?: (tower: Tower) => void;
+  onBuiltTowerClicked?: (tower: Tower, cell: GameCell) => void;
   towerSizePercentage: number;
 }
 

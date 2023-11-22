@@ -1,23 +1,15 @@
-import { Position, Size, isDefined } from "../../../utils";
-import { ExportedCell } from "../builder/ExportedCell";
-import { ExportedGrid } from "../builder/ExportedGrid";
-import { GameCell } from "./game-cell/GameCell";
-import { GameCellOptions } from "./game-cell/GameCellOptions";
-import { Color } from "../../Color";
-import { CellId } from "../CellId";
+import { Position, Size, isDefined } from "../../../../utils";
+import { ExportedCell } from "../../builder/ExportedCell";
+import { ExportedGrid } from "../../builder/ExportedGrid";
+import { GameCell } from "../game-cell/GameCell";
+import { GameCellOptions } from "../game-cell/GameCellOptions";
+import { Color } from "../../../Color";
+import { CellId } from "../../CellId";
 import { sortBy } from "lodash";
-import { TowerTemplate } from "./towers/TowerTemplate";
-import { WaveTile } from "./WaveTile";
-import { Enemy, EnemyTemplate } from "./enemies/Enemy";
-import { basicZombieEnemyTemplate } from "./enemies/BasicZombie";
-import { applyEnemyMultiplier } from "./enemies/applyEnemyMultiplier";
-import { Tower } from "./towers/specified-towers/Tower";
-
-export interface GameMapOptions<T> {
-  isButton?: boolean;
-  onClick?: (map: T) => void;
-  onPicked?: (cell: GameCell) => void;
-}
+import { TowerTemplate } from "../towers/TowerTemplate";
+import { Enemy, EnemyTemplate } from "../enemies/Enemy";
+import { Tower } from "../towers/specified-towers/Tower";
+import { GameMapOptions } from "./GameMapOptions";
 
 export class GameMap extends Phaser.GameObjects.Container {
   private readonly cells: GameCell[];
@@ -185,13 +177,12 @@ export class GameMap extends Phaser.GameObjects.Container {
       isStart,
       isEnd,
     };
-    const options: Partial<GameCellOptions> = this.options.onPicked
-      ? {
-          ...baseOptions,
-          onPicked: this.options.onPicked,
-          onTowerPlaced: (...args) => this.onTowerPlaced(...args),
-        }
-      : baseOptions;
+    const options: Partial<GameCellOptions> = {
+      ...baseOptions,
+      onPicked: this.options.onPicked || undefined,
+      onBuiltTowerClicked: this.options.onBuiltTowerClicked || undefined,
+      onTowerPlaced: (...args) => this.onTowerPlaced(...args),
+    };
     return new GameCell(
       this.scene,
       new CellId(rowIndex, columnIndex),

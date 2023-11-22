@@ -3,7 +3,7 @@ import { RawColor } from "../../Color";
 import { Image, Images } from "../../Image";
 import { SceneKey } from "../../SceneKey";
 import { ExportedGrid } from "../builder/ExportedGrid";
-import { GameMap } from "./GameMap";
+import { GameMap } from "./game-map/GameMap";
 import { GameSceneData } from "./GameSceneData";
 import { HeartsBar } from "./HeartsBar";
 import { BankAccount } from "./BankAccount";
@@ -51,7 +51,7 @@ export class GameScene extends Phaser.Scene {
 
   private spawnEnemiesTimerEvent?: Phaser.Time.TimerEvent;
 
-  private readonly towers: Tower[] = [];
+  private builtTowerCellSelected?: GameCell;
 
   private placingTower?: TowerTile = undefined;
 
@@ -84,6 +84,7 @@ export class GameScene extends Phaser.Scene {
     const size: Size = { width: height, height };
     this.map = new GameMap(this, position, size, grid, {
       onPicked: (...args) => this.cellPicked(...args),
+      onBuiltTowerClicked: (...args) => this.onBuiltTowerClicked(...args),
     });
   }
 
@@ -237,6 +238,9 @@ export class GameScene extends Phaser.Scene {
 
   private cancelAnyActions() {
     this.map.makeUnpickable();
+    if (this.builtTowerCellSelected) {
+      this.builtTowerCellSelected.unselect();
+    }
   }
 
   private createPassiveIncomeTimerEvent() {
@@ -346,6 +350,15 @@ export class GameScene extends Phaser.Scene {
       this.spawnEnemiesTimerEvent = undefined;
     }
     this.spawnEnemiesTimerEvent = this.createSpawnEnemiesTimerEvent(wave);
+  }
+
+  private onBuiltTowerClicked(tower: Tower, cell: GameCell) {
+    console.info("# Built tower clicked.", tower);
+    cell.select();
+    if (this.builtTowerCellSelected) {
+      this.builtTowerCellSelected.unselect();
+    }
+    this.builtTowerCellSelected = cell;
   }
 
   private onTowerPicked(tile: TowerTile) {

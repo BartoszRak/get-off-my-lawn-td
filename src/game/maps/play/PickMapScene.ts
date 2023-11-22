@@ -3,7 +3,7 @@ import { SceneKey } from "../../SceneKey";
 import { RawMap, RawMaps } from "../RawMaps";
 import { ExportedGrid } from "../builder/ExportedGrid";
 import { Position, Size } from "../../../utils";
-import { GameMap } from "./GameMap";
+import { GameMap } from "./game-map/GameMap";
 import { Image, Images } from "../../Image";
 import { Label } from "../../shared";
 
