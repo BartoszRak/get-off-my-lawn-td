@@ -242,6 +242,10 @@ export class GameScene extends Phaser.Scene {
     if (this.builtTowerCellSelected) {
       this.builtTowerCellSelected.unselect();
     }
+    if (this.pickTargeting) {
+      this.pickTargeting.destroy(true);
+      this.pickTargeting = undefined;
+    }
   }
 
   private createPassiveIncomeTimerEvent() {
