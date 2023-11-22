@@ -171,8 +171,7 @@ export class Tower extends Phaser.GameObjects.Group {
   }
 
   private updateRotation(lockedEnemy: EnemyWithDistance) {
-    const { enemy, distance } = lockedEnemy;
-    enemy.setAlpha(0.3);
+    const { enemy } = lockedEnemy;
     const angle = Phaser.Math.Angle.BetweenPoints(
       enemy.getCenterPoint(),
       this.getCenterPoint()
