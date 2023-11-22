@@ -125,8 +125,10 @@ export class GameCell extends Phaser.GameObjects.Rectangle {
   private attachCallbacks(data: TowerTemplate) {
     const { onPicked: onClick } = this.options;
     if (onClick) {
-      this.on(Phaser.Input.Events.POINTER_UP, () => {
-        onClick(this);
+      this.on(Phaser.Input.Events.POINTER_UP, (pointer:Phaser.Input.Pointer) => {
+        if(pointer.leftButtonReleased()) {
+          onClick(this);
+        }
       });
     }
     this.on(Phaser.Input.Events.POINTER_OVER, () => {
