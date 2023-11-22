@@ -8,14 +8,12 @@ export interface GameCellOptions {
   isPath?: boolean;
   isStart?: boolean;
   isEnd?: boolean;
-  isPickable: boolean;
   onPicked?: (cell: GameCell) => void;
   onTowerPlaced?: (tower: Tower) => void;
   towerSizePercentage: number;
 }
 
 const defaultGameCellOptions: GameCellOptions = {
-  isPickable: false,
   towerSizePercentage: 1,
 };
 
@@ -23,6 +21,7 @@ export class GameCell extends Phaser.GameObjects.Rectangle {
   private readonly options: GameCellOptions;
   private readonly specifiedColor: Color;
   private previewTower?: Tower;
+  private previewTowerData?: TowerTemplate;
   private tower?: Tower;
 
   constructor(
@@ -75,17 +74,22 @@ export class GameCell extends Phaser.GameObjects.Rectangle {
   }
 
   makePickable(data: TowerTemplate) {
-    if (!this.options.isPickable) {
-      this.options.isPickable = true;
+    if (!this.previewTowerData) {
+      this.previewTowerData = data;
       this.setInteractive();
       this.setStrokeStyle(2, Color.Warn);
-      this.attachCallbacks(data);
+    } else {
+      this.previewTowerData = data;
+      this.cleanCallbacks();
     }
+
+    this.attachCallbacks(data);
   }
 
   makeUnpickable() {
-    if (this.options.isPickable) {
-      this.options.isPickable = false;
+    if (this.previewTowerData) {
+      this.previewTowerData = undefined;
+
       this.disableInteractive();
       this.setStrokeStyle(2, this.specifiedColor);
       this.setFillStyle(this.specifiedColor);

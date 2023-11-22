@@ -106,7 +106,10 @@ export class GameScene extends Phaser.Scene {
     this.load.image(towerImagesConfigurations);
 
     // Sounds
-    const soundsConfigurations = createMultipleSoundsConfigurations(Sound, sounds);
+    const soundsConfigurations = createMultipleSoundsConfigurations(
+      Sound,
+      sounds
+    );
     this.load.audio(soundsConfigurations);
 
     const enemiesAtlasConfigurations: Phaser.Types.Loader.FileTypes.AtlasJSONFileConfig[] =
@@ -333,7 +336,6 @@ export class GameScene extends Phaser.Scene {
   }
 
   private onTowerPicked(tile: TowerTile) {
-    console.info("# Tower picked!", tile.data);
     this.placingTower = tile;
     this.map.makePickable(tile.data);
   }

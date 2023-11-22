@@ -74,7 +74,7 @@ export class PickTower extends Phaser.GameObjects.Group {
         specifiedTower,
         {
           strokeWidth: 5,
-          onClick: (...args) => this.onTowerClicked(...args),
+          onClick: (...args) => this.handleTowerPick(...args),
           disabled,
         }
       );
@@ -98,8 +98,7 @@ export class PickTower extends Phaser.GameObjects.Group {
     return wrapper;
   }
 
-  private onTowerClicked(tile: TowerTile) {
-    console.info("# Tower picked!", tile.data);
+  private handleTowerPick(tile: TowerTile) {
     const { onTowerPicked } = this.options;
     if (onTowerPicked) {
       onTowerPicked(tile);
