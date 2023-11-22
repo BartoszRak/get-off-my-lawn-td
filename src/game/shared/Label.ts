@@ -28,8 +28,7 @@ const labelDefaultOptions: LabelOptions = {
   },
 };
 
-export class Label extends Phaser.GameObjects.Container {
-  private readonly text: Phaser.GameObjects.Text;
+export class Label extends Phaser.GameObjects.Text {
   private readonly onClick?: LabelOptions["onClick"];
   private readonly id: string;
 
@@ -49,26 +48,17 @@ export class Label extends Phaser.GameObjects.Container {
       ...labelDefaultOptions,
       ...options,
     };
-    super(scene, x, y);
-
     const { isDisabled, disabledAlpha, onClick, id, origin, ...textOptions } =
       preparedOptions;
     const preparedId = id || text;
+    super(scene, x, y, text, textOptions);
 
-    const textObject = new Phaser.GameObjects.Text(
-      scene,
-      x,
-      y,
-      text,
-      textOptions
-    ).setOrigin(origin);
+    this.setOrigin(origin);
     if (isDisabled) {
-      textObject.setAlpha(disabledAlpha);
+      this.setAlpha(disabledAlpha);
     }
-    this.add(textObject);
-    this.scene.add.existing(textObject);
+    this.scene.add.existing(this);
 
-    this.text = textObject;
     this.id = preparedId;
     this.onClick = onClick;
     this.backgroundColor = textOptions.backgroundColor;
@@ -76,27 +66,21 @@ export class Label extends Phaser.GameObjects.Container {
     this.disabledAlpha = disabledAlpha;
 
     if (onClick) {
-      this.attachCallbacks(
-        scene,
-        textObject,
-        { onClick, id: preparedId },
-        isDisabled
-      );
+      this.attachCallbacks(scene, { onClick, id: preparedId }, isDisabled);
       this.onHoverSound = this.scene.sound.add(Sound.OnHover);
     }
   }
 
   enable() {
-    this.text.setAlpha(1).setInteractive();
+    this.setAlpha(1).setInteractive();
   }
 
   disable() {
-    this.text.setAlpha(this.disabledAlpha).disableInteractive();
+    this.setAlpha(this.disabledAlpha).disableInteractive();
   }
 
   private attachCallbacks(
     scene: Phaser.Scene,
-    text: Phaser.GameObjects.Text,
     onClickAndId?: {
       onClick: Required<LabelOptions>["onClick"];
       id: string;
@@ -104,40 +88,37 @@ export class Label extends Phaser.GameObjects.Container {
     isDisabled?: boolean
   ) {
     if (!isDisabled) {
-      text.setInteractive();
+      this.setInteractive();
     }
     if (onClickAndId) {
       const { onClick, id } = onClickAndId;
-      text.on(Phaser.Input.Events.POINTER_UP, () => {
+      this.on(Phaser.Input.Events.POINTER_UP, () => {
         onClick(id);
       });
     }
-    text.on(Phaser.Input.Events.POINTER_OVER, () => {
+    this.on(Phaser.Input.Events.POINTER_OVER, () => {
       // Hover in
-      text.setBackgroundColor(RawColor.Success);
-      text.setColor(RawColor.SuccessContrast);
+      this.setBackgroundColor(RawColor.Success);
+      this.setColor(RawColor.SuccessContrast);
       if (this.onHoverSound) {
         this.onHoverSound.play(undefined, { volume: 0.3 });
       }
     });
-    text.on(Phaser.Input.Events.POINTER_OUT, () => {
+    this.on(Phaser.Input.Events.POINTER_OUT, () => {
       // Hover out
-      text.setBackgroundColor(this.backgroundColor);
-      text.setColor(this.color);
+      this.setBackgroundColor(this.backgroundColor);
+      this.setColor(this.color);
     });
     scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
-      this.cleanCallbacks(text, onClickAndId?.onClick);
+      this.cleanCallbacks(onClickAndId?.onClick);
     });
   }
 
-  private cleanCallbacks(
-    text: Phaser.GameObjects.Text,
-    onClick?: LabelOptions["onClick"]
-  ) {
-    text.off(Phaser.Input.Events.POINTER_OVER);
-    text.off(Phaser.Input.Events.POINTER_OUT);
+  private cleanCallbacks(onClick?: LabelOptions["onClick"]) {
+    this.off(Phaser.Input.Events.POINTER_OVER);
+    this.off(Phaser.Input.Events.POINTER_OUT);
     if (onClick) {
-      text.off(Phaser.Input.Events.POINTER_UP);
+      this.off(Phaser.Input.Events.POINTER_UP);
     }
   }
 }

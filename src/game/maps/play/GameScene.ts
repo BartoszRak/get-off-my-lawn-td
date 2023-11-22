@@ -19,7 +19,6 @@ import { TowerImage, towerImages } from "../../TowerImage";
 import { canonTowerTemplate } from "./towers/specified-towers/CanonTower";
 import { missileLauncherTowerTemplate } from "./towers/specified-towers/MissileLauncher";
 import { EnemyAtlas, EnemyAtlases } from "./enemies/EnemyAtlas";
-import { Enemy } from "./enemies/Enemy";
 import { applyEnemyMultiplier } from "./enemies/applyEnemyMultiplier";
 import { basicZombieEnemyTemplate } from "./enemies/BasicZombie";
 import {
@@ -27,6 +26,7 @@ import {
   createMultipleSoundsConfigurations,
 } from "../../shared";
 import { Sound, sounds } from "../../Sound";
+import { PickTargeting } from "./pick-targeting/PickTargeting";
 
 export class GameScene extends Phaser.Scene {
   private waveChangedSound!: Phaser.Sound.BaseSound;
@@ -39,6 +39,7 @@ export class GameScene extends Phaser.Scene {
   private playAndStop!: PlayAndStop;
   private pickTower!: PickTower;
   private bankAccount!: BankAccount;
+  private pickTargeting?: PickTargeting;
 
   private isPlacingTower = false;
   private balance = 320;
@@ -359,6 +360,19 @@ export class GameScene extends Phaser.Scene {
       this.builtTowerCellSelected.unselect();
     }
     this.builtTowerCellSelected = cell;
+    this.pickTargeting = this.createTowerTargeting();
+  }
+
+  private createTowerTargeting() {
+    return new PickTargeting(
+      this,
+      { x: this.scale.width - 150, y: 700 },
+      {
+        onChanged: (newTargeting) => {
+          console.warn("### Targeting changed", newTargeting);
+        },
+      }
+    );
   }
 
   private onTowerPicked(tile: TowerTile) {
