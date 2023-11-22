@@ -215,6 +215,15 @@ export class GameScene extends Phaser.Scene {
 
     this.passiveIncomeTimerEvent = this.createPassiveIncomeTimerEvent();
 
+    this.input.on(
+      Phaser.Input.Events.POINTER_UP,
+      (pointer: Phaser.Input.Pointer) => {
+        if (pointer.rightButtonReleased()) {
+          this.cancelAnyActions();
+        }
+      }
+    );
+
     console.log("--- create game scene", data);
     this.add.existing(this.map);
   }
@@ -224,6 +233,10 @@ export class GameScene extends Phaser.Scene {
       this.map.updateEnemies(time, delta);
       this.map.updateTowers(time, delta);
     }
+  }
+
+  private cancelAnyActions() {
+    this.map.makeUnpickable();
   }
 
   private createPassiveIncomeTimerEvent() {
