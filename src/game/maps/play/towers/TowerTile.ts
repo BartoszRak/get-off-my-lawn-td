@@ -95,9 +95,14 @@ export class TowerTile extends Phaser.GameObjects.Group {
   ) {
     const { onClick } = this.options;
     if (onClick) {
-      wrapper.on(Phaser.Input.Events.POINTER_UP, () => {
-        onClick(this);
-      });
+      wrapper.on(
+        Phaser.Input.Events.POINTER_UP,
+        (pointer: Phaser.Input.Pointer) => {
+          if (pointer.leftButtonReleased()) {
+            onClick(this);
+          }
+        }
+      );
     }
     wrapper.on(Phaser.Input.Events.POINTER_OVER, () => {
       wrapper.setStrokeStyle(2, this.hoverColor);
