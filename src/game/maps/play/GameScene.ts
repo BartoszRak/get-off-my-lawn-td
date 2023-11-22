@@ -12,7 +12,7 @@ import { WaveTile } from "./WaveTile";
 import { WavesBar } from "./WavesBar";
 import { PickTower } from "./towers/PickTower";
 import { TowerTile } from "./towers/TowerTile";
-import { GameCell } from "./GameCell";
+import { GameCell } from "./game-cell/GameCell";
 import { Tower } from "./towers/specified-towers/Tower";
 import { machineGunTowerTemplate } from "./towers/specified-towers/MachineGunTower";
 import { TowerImage, towerImages } from "../../TowerImage";

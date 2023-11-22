@@ -1,7 +1,8 @@
 import { Position, Size, isDefined } from "../../../utils";
 import { ExportedCell } from "../builder/ExportedCell";
 import { ExportedGrid } from "../builder/ExportedGrid";
-import { GameCell, GameCellOptions } from "./GameCell";
+import { GameCell } from "./game-cell/GameCell";
+import { GameCellOptions } from "./game-cell/GameCellOptions";
 import { Color } from "../../Color";
 import { CellId } from "../CellId";
 import { sortBy } from "lodash";
