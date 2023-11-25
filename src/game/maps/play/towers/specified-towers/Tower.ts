@@ -39,7 +39,7 @@ export class Tower extends Phaser.GameObjects.Group {
     scene: Phaser.Scene,
     private readonly position: Position,
     private readonly size: Size,
-    private readonly data: TowerTemplate,
+    public readonly data: TowerTemplate,
     options: Partial<TowerOptions> = defaultOptions,
     private level = 0
   ) {
@@ -75,8 +75,28 @@ export class Tower extends Phaser.GameObjects.Group {
     );
   }
 
+  getCurrentLevel() {
+    return this.level;
+  }
+
   getMaxLevel() {
     return this.data.levels.length - 1;
+  }
+
+  canBeUpgraded() {
+    return this.getCurrentLevel() < this.getMaxLevel();
+  }
+
+  upgrade() {
+    const oldLvl = this.level;
+    if (this.canBeUpgraded()) {
+      this.level += 1;
+    }
+    return {
+      canBeUpgradedAgain: this.canBeUpgraded(),
+      oldLvl,
+      newLvl: this.level,
+    };
   }
 
   setAlpha(value: number, step?: number | undefined): this {
@@ -373,6 +393,10 @@ export class Tower extends Phaser.GameObjects.Group {
     return isKeyDefined(results, "enemy") ? results.enemy : undefined;
   }
 
+  getCurrentData() {
+    return this.data.levels[this.level];
+  }
+
   private findSlowestEnemy(enemiesInRange: EnemyWithDistance[]) {
     const results = enemiesInRange.reduce<{
       enemy?: EnemyWithDistance;
@@ -429,10 +453,6 @@ export class Tower extends Phaser.GameObjects.Group {
       isInRange,
       distance,
     };
-  }
-
-  private getCurrentData() {
-    return this.data.levels[this.level];
   }
 
   private getCenterPoint() {

@@ -1,5 +1,5 @@
 import { Optional, OptionalKeys } from "utility-types";
-import { TowerTargeting } from "../towers/TowerTargeting";
+import { TowerTargeting } from "../../towers/TowerTargeting";
 
 export interface PickTargetingOptions {
   initial: TowerTargeting;

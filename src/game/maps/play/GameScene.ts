@@ -26,7 +26,7 @@ import {
   createMultipleSoundsConfigurations,
 } from "../../shared";
 import { Sound, sounds } from "../../Sound";
-import { PickTargeting } from "./pick-targeting/PickTargeting";
+import { TowerControl } from "./tower-control/TowerControl";
 
 export class GameScene extends Phaser.Scene {
   private waveChangedSound!: Phaser.Sound.BaseSound;
@@ -39,7 +39,7 @@ export class GameScene extends Phaser.Scene {
   private playAndStop!: PlayAndStop;
   private pickTower!: PickTower;
   private bankAccount!: BankAccount;
-  private pickTargeting?: PickTargeting;
+  private towerControl?: TowerControl;
 
   private isPlacingTower = false;
   private balance = 320;
@@ -242,9 +242,9 @@ export class GameScene extends Phaser.Scene {
     if (this.builtTowerCellSelected) {
       this.builtTowerCellSelected.unselect();
     }
-    if (this.pickTargeting) {
-      this.pickTargeting.destroy(true);
-      this.pickTargeting = undefined;
+    if (this.towerControl) {
+      this.towerControl.destroy(true);
+      this.towerControl = undefined;
     }
   }
 
@@ -364,23 +364,25 @@ export class GameScene extends Phaser.Scene {
       this.builtTowerCellSelected.unselect();
     }
     this.builtTowerCellSelected = cell;
-    if (this.pickTargeting) {
-      this.pickTargeting.destroy(true);
-      this.pickTargeting = undefined;
+    if (this.towerControl) {
+      this.towerControl.destroy(true);
+      this.towerControl = undefined;
     }
-    this.pickTargeting = this.createTowerTargeting(tower);
+    this.towerControl = this.createTowerControl(tower);
   }
 
-  private createTowerTargeting(tower: Tower) {
-    return new PickTargeting(
+  private createTowerControl(tower: Tower) {
+    return new TowerControl(
       this,
-      { x: this.scale.width - 150, y: 700 },
+      { x: this.scale.width - 150, y: 600 },
+      { width: 300, height: 300 },
+      tower,
       {
-        onChanged: (newTargeting) => {
+        onTargetingChanged: (newTargeting) => {
           console.warn("### Targeting changed", newTargeting);
           tower.updateTargeting(newTargeting);
         },
-        initial: tower.getTargeting(),
+        initialTargeting: tower.getTargeting(),
       }
     );
   }
