@@ -1,10 +1,12 @@
 import { Sound } from "../../../../Sound";
 import { TowerImage } from "../../../../TowerImage";
+import { TowerTargeting } from "../TowerTargeting";
 import { TowerTemplate } from "../TowerTemplate";
 
 export const missileLauncherTowerTemplate: TowerTemplate = {
   name: "Missile launcher",
   shotSound: Sound.MissileLauncherShoot,
+  defaultTargeting: TowerTargeting.First,
   levels: [
     {
       cost: 100,

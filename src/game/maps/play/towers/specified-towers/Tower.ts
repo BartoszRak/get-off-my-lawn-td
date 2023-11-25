@@ -5,6 +5,7 @@ import { Sound } from "../../../../Sound";
 import { TowerImage } from "../../../../TowerImage";
 import { Enemy } from "../../enemies/Enemy";
 import { EnemyWithDistance } from "../../enemies/EnemyWithDistance";
+import { TowerTargeting } from "../TowerTargeting";
 import { TowerTemplate } from "../TowerTemplate";
 import { TowerBullet } from "./TowerBullet";
 
@@ -32,6 +33,7 @@ export class Tower extends Phaser.GameObjects.Group {
   private shootingTimerEvent?: Phaser.Time.TimerEvent;
   private readonly bulletsGroup: Phaser.GameObjects.Group;
   private readonly shootSound: Phaser.Sound.BaseSound;
+  private targeting: TowerTargeting;
 
   constructor(
     scene: Phaser.Scene,
@@ -44,6 +46,7 @@ export class Tower extends Phaser.GameObjects.Group {
     super(scene);
     const mergedOptions = { ...options, ...defaultOptions };
     this.options = mergedOptions;
+    this.targeting = data.defaultTargeting;
 
     this.wrapper = this.createWrapper();
     this.base = this.createImage(data.levels[level].images.base, this.size);
@@ -56,6 +59,14 @@ export class Tower extends Phaser.GameObjects.Group {
     this.addMultiple([...this.baseChildrens, this.range].filter(isDefined));
     this.bulletsGroup = new Phaser.GameObjects.Group(this.scene);
     this.shootSound = this.scene.sound.add(data.shotSound);
+  }
+
+  updateTargeting(targeting: TowerTargeting) {
+    this.targeting = targeting;
+  }
+
+  getTargeting() {
+    return this.targeting;
   }
 
   stop() {
@@ -77,7 +88,10 @@ export class Tower extends Phaser.GameObjects.Group {
   }
 
   update(availableEnemies: Enemy[]) {
-    const newTargetToLockOn = this.findNewTargetToLock(availableEnemies);
+    const newTargetToLockOn = this.findNewTargetToLock(
+      availableEnemies,
+      this.getTargeting()
+    );
     if (newTargetToLockOn) {
       this.lockOn(newTargetToLockOn);
     }
@@ -181,8 +195,11 @@ export class Tower extends Phaser.GameObjects.Group {
     this.barrel.setAngle(degrees);
   }
 
-  private findNewTargetToLock(enemies: Enemy[]): EnemyWithDistance | undefined {
-    const targetToLockOn = this.findClosestEnemyInRange(enemies);
+  private findNewTargetToLock(
+    enemies: Enemy[],
+    targeting: TowerTargeting
+  ): EnemyWithDistance | undefined {
+    const targetToLockOn = this.findEnemyByStrategy(enemies, targeting);
     if (!targetToLockOn) {
       return;
     }
@@ -194,17 +211,84 @@ export class Tower extends Phaser.GameObjects.Group {
     return preparedTarget;
   }
 
-  private findClosestEnemyInRange(enemies: Enemy[]) {
-    const enemyAndDistance = enemies.reduce<{
-      enemy?: Enemy;
+  findEnemyByStrategy(enemies: Enemy[], targeting: TowerTargeting) {
+    const enemiesInRange = this.findAllEnemiesInRange(enemies);
+    const enhancedEnemiesInRange = this.enhanceMultipleEnemies(enemiesInRange);
+
+    const finders: Record<
+      TowerTargeting,
+      (enemies: EnemyWithDistance[]) => EnemyWithDistance | undefined
+    > = {
+      [TowerTargeting.Closest]: this.findClosestEnemy,
+      [TowerTargeting.Strongest]: this.findStrongestEnemy,
+      [TowerTargeting.Weakest]: this.findWeakestEnemy,
+      [TowerTargeting.Fastest]: this.findFastestEnemy,
+      [TowerTargeting.Slowest]: this.findSlowestEnemy,
+      [TowerTargeting.First]: this.findFirstEnemy,
+      [TowerTargeting.Last]: this.findLastEnemy,
+    };
+    const find = finders[targeting];
+    return find(enhancedEnemiesInRange);
+  }
+  private findFirstEnemy(enemiesInRange: EnemyWithDistance[]) {
+    const results = enemiesInRange.reduce<{
+      enemy?: EnemyWithDistance;
+      pathDelta: number;
+    }>(
+      (closest, enemyWithDistance) => {
+        const { enemy } = enemyWithDistance;
+        const isInFrontOfCurrent = enemy.pathDelta > closest.pathDelta;
+        if (isInFrontOfCurrent) {
+          return {
+            pathDelta: enemy.pathDelta,
+            enemy: enemyWithDistance,
+          };
+        }
+        return closest;
+      },
+      {
+        enemy: undefined,
+        pathDelta: Number.MIN_VALUE,
+      }
+    );
+    return isKeyDefined(results, "enemy") ? results.enemy : undefined;
+  }
+
+  private findLastEnemy(enemiesInRange: EnemyWithDistance[]) {
+    const results = enemiesInRange.reduce<{
+      enemy?: EnemyWithDistance;
+      pathDelta: number;
+    }>(
+      (closest, enemyWithDistance) => {
+        const { enemy } = enemyWithDistance;
+        const isBehindOfCurrent = enemy.pathDelta < closest.pathDelta;
+        if (isBehindOfCurrent) {
+          return {
+            pathDelta: enemy.pathDelta,
+            enemy: enemyWithDistance,
+          };
+        }
+        return closest;
+      },
+      {
+        enemy: undefined,
+        pathDelta: Number.MAX_VALUE,
+      }
+    );
+    return isKeyDefined(results, "enemy") ? results.enemy : undefined;
+  }
+
+  private findClosestEnemy(enemiesInRange: EnemyWithDistance[]) {
+    const results = enemiesInRange.reduce<{
+      enemy?: EnemyWithDistance;
       distance: number;
     }>(
-      (closest, specifiedEnemy) => {
-        const { isInRange, distance } = this.isEnemyInRange(specifiedEnemy);
-        if (distance < closest.distance && isInRange) {
+      (closest, enemyWithDistance) => {
+        const { distance } = enemyWithDistance;
+        if (distance < closest.distance) {
           return {
             distance,
-            enemy: specifiedEnemy,
+            enemy: enemyWithDistance,
           };
         }
         return closest;
@@ -214,16 +298,132 @@ export class Tower extends Phaser.GameObjects.Group {
         distance: Number.MAX_VALUE,
       }
     );
-    return isKeyDefined(enemyAndDistance, "enemy")
-      ? enemyAndDistance
-      : undefined;
+    return isKeyDefined(results, "enemy") ? results.enemy : undefined;
   }
 
-  private isEnemyInRange(enemy: Enemy) {
-    const distance = Phaser.Math.Distance.BetweenPoints(
+  private findStrongestEnemy(enemiesInRange: EnemyWithDistance[]) {
+    const results = enemiesInRange.reduce<{
+      enemy?: EnemyWithDistance;
+      maxLife: number;
+    }>(
+      (closest, enemyWithDistance) => {
+        const { enemy } = enemyWithDistance;
+        const isStrongerThanCurrent = enemy.maxLife > closest.maxLife;
+        if (isStrongerThanCurrent) {
+          return {
+            maxLife: enemy.maxLife,
+            enemy: enemyWithDistance,
+          };
+        }
+        return closest;
+      },
+      {
+        enemy: undefined,
+        maxLife: Number.MIN_VALUE,
+      }
+    );
+    return isKeyDefined(results, "enemy") ? results.enemy : undefined;
+  }
+
+  private findWeakestEnemy(enemiesInRange: EnemyWithDistance[]) {
+    const results = enemiesInRange.reduce<{
+      enemy?: EnemyWithDistance;
+      maxLife: number;
+    }>(
+      (closest, enemyWithDistance) => {
+        const { enemy } = enemyWithDistance;
+        const isWeakerThanCurrent = enemy.maxLife < closest.maxLife;
+        if (isWeakerThanCurrent) {
+          return {
+            maxLife: enemy.maxLife,
+            enemy: enemyWithDistance,
+          };
+        }
+        return closest;
+      },
+      {
+        enemy: undefined,
+        maxLife: Number.MAX_VALUE,
+      }
+    );
+    return isKeyDefined(results, "enemy") ? results.enemy : undefined;
+  }
+
+  private findFastestEnemy(enemiesInRange: EnemyWithDistance[]) {
+    const results = enemiesInRange.reduce<{
+      enemy?: EnemyWithDistance;
+      speed: number;
+    }>(
+      (closest, enemyWithDistance) => {
+        const { enemy } = enemyWithDistance;
+        const isFasterThanCurrent = enemy.speed > closest.speed;
+        if (isFasterThanCurrent) {
+          return {
+            speed: enemy.speed,
+            enemy: enemyWithDistance,
+          };
+        }
+        return closest;
+      },
+      {
+        enemy: undefined,
+        speed: Number.MIN_VALUE,
+      }
+    );
+    return isKeyDefined(results, "enemy") ? results.enemy : undefined;
+  }
+
+  private findSlowestEnemy(enemiesInRange: EnemyWithDistance[]) {
+    const results = enemiesInRange.reduce<{
+      enemy?: EnemyWithDistance;
+      speed: number;
+    }>(
+      (closest, enemyWithDistance) => {
+        const { enemy } = enemyWithDistance;
+        const isSlowerThanCurrent = enemy.speed < closest.speed;
+        if (isSlowerThanCurrent) {
+          return {
+            speed: enemy.speed,
+            enemy: enemyWithDistance,
+          };
+        }
+        return closest;
+      },
+      {
+        enemy: undefined,
+        speed: Number.MAX_VALUE,
+      }
+    );
+    return isKeyDefined(results, "enemy") ? results.enemy : undefined;
+  }
+
+  private findAllEnemiesInRange(enemies: Enemy[]) {
+    return enemies.filter((specifiedEnemy) => {
+      const { isInRange } = this.isEnemyInRange(specifiedEnemy);
+      return isInRange;
+    });
+  }
+
+  private enhanceEnemy(enemy: Enemy): EnemyWithDistance {
+    return {
+      enemy,
+      distance: this.getDistanceTo(enemy),
+    };
+  }
+
+  private enhanceMultipleEnemies(enemies: Enemy[]) {
+    return enemies.map((specifiedEnemy) => this.enhanceEnemy(specifiedEnemy));
+  }
+
+  private getDistanceTo(enemy: Enemy) {
+    return Phaser.Math.Distance.BetweenPoints(
       this.getCenterPoint(),
       enemy.getCenterPoint()
     );
+  }
+
+  private isEnemyInRange(enemy: Enemy) {
+    const distance = this.getDistanceTo(enemy);
     const isInRange = distance <= this.getCurrentData().range;
     return {
       isInRange,

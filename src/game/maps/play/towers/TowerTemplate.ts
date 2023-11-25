@@ -1,5 +1,6 @@
 import { Sound } from "../../../Sound";
 import { TowerImage } from "../../../TowerImage";
+import { TowerTargeting } from "./TowerTargeting";
 
 export interface TowerLevel {
   images: {
@@ -16,5 +17,6 @@ export interface TowerLevel {
 export interface TowerTemplate {
   name: string;
   shotSound: Sound;
+  defaultTargeting: TowerTargeting,
   levels: TowerLevel[];
 }

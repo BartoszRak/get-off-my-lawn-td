@@ -364,17 +364,23 @@ export class GameScene extends Phaser.Scene {
       this.builtTowerCellSelected.unselect();
     }
     this.builtTowerCellSelected = cell;
-    this.pickTargeting = this.createTowerTargeting();
+    if (this.pickTargeting) {
+      this.pickTargeting.destroy(true);
+      this.pickTargeting = undefined;
+    }
+    this.pickTargeting = this.createTowerTargeting(tower);
   }
 
-  private createTowerTargeting() {
+  private createTowerTargeting(tower: Tower) {
     return new PickTargeting(
       this,
       { x: this.scale.width - 150, y: 700 },
       {
         onChanged: (newTargeting) => {
           console.warn("### Targeting changed", newTargeting);
+          tower.updateTargeting(newTargeting);
         },
+        initial: tower.getTargeting(),
       }
     );
   }

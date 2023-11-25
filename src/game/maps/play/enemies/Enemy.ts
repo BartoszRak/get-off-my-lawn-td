@@ -24,8 +24,10 @@ export class Enemy extends Phaser.GameObjects.Container {
   private readonly options: EnemyOptions;
 
   private currentLife: number;
-  private readonly maxLife: number;
+  public readonly maxLife: number;
   private readonly lifeBarHeight = 7;
+  public readonly speed: number
+  public  pathDelta: number = 0
 
   constructor(
     scene: Phaser.Scene,
@@ -39,6 +41,7 @@ export class Enemy extends Phaser.GameObjects.Container {
 
     this.currentLife = data.life;
     this.maxLife = data.life;
+    this.speed = data.speed
     const mergedOptions = { ...enemyDefaultOptions, ...options };
     this.options = mergedOptions;
 
@@ -106,6 +109,7 @@ export class Enemy extends Phaser.GameObjects.Container {
       this.destroy(true);
     } else {
       const delta = this.time / this.duration;
+      this.pathDelta = delta
       const newPoint = this.path.getPoint(delta);
       this.setPosition(newPoint.x, newPoint.y);
     }

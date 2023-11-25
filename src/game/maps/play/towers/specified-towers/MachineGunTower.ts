@@ -1,10 +1,12 @@
 import { Sound } from "../../../../Sound";
 import { TowerImage } from "../../../../TowerImage";
+import { TowerTargeting } from "../TowerTargeting";
 import { TowerTemplate } from "../TowerTemplate";
 
 export const machineGunTowerTemplate: TowerTemplate = {
   name: "Machine gun",
   shotSound: Sound.MachineGunShoot,
+  defaultTargeting: TowerTargeting.First,
   levels: [
     {
       cost: 100,
