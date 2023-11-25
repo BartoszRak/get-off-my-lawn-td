@@ -193,8 +193,8 @@ export class GameScene extends Phaser.Scene {
     );
     this.pickTower = new PickTower(
       this,
-      { x: this.scale.width - 200, y: 430 },
-      { width: 300, height: 400 },
+      { x: this.scale.width - 200, y: 330 },
+      { width: 400 },
       [
         machineGunTowerTemplate,
         canonTowerTemplate,

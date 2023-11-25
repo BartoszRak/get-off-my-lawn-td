@@ -22,11 +22,12 @@ export class PickTower extends Phaser.GameObjects.Group {
   private readonly wrapper: Phaser.GameObjects.Rectangle;
   private readonly tiles: TowerTile[];
   private readonly options: PickTowerFullOptions;
+  private readonly size: Size;
 
   constructor(
     scene: Phaser.Scene,
     private readonly position: Position,
-    private readonly size: Size,
+    { width }: Omit<Size, "height">,
     towers: TowerTemplate[],
     options: Partial<PickTowerOptions> = defaultOptions
   ) {
@@ -35,9 +36,16 @@ export class PickTower extends Phaser.GameObjects.Group {
       ...defaultOptions,
       ...options,
     };
+    const tileSize = width / fullOptions.towersInRow;
+    const rows = Math.ceil(towers.length / fullOptions.towersInRow);
+    const size = {
+      width,
+      height: rows * tileSize,
+    };
+    this.size = size
     this.options = {
       ...fullOptions,
-      tileSize: size.width / fullOptions.towersInRow,
+      tileSize,
     };
     this.wrapper = this.createWrapper();
     this.tiles = this.createTowerTiles(towers);
@@ -73,7 +81,7 @@ export class PickTower extends Phaser.GameObjects.Group {
         { width: this.options.tileSize, height: this.options.tileSize },
         specifiedTower,
         {
-          strokeWidth: 5,
+          strokeWidth: 0,
           onClick: (...args) => this.handleTowerPick(...args),
           disabled,
         }
