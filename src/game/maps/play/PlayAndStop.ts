@@ -15,7 +15,7 @@ export class PlayAndStop extends Phaser.GameObjects.Group {
     private readonly position: Position,
     private readonly size: Size,
     private isStopped = true,
-    private readonly callbacks: Partial<PlayAndStopCallbacks> = {}
+    private readonly callbacks: Partial<PlayAndStopCallbacks> = {},
   ) {
     super(scene);
 
@@ -89,7 +89,7 @@ export class PlayAndStop extends Phaser.GameObjects.Group {
   private attachButtonCallbacks(
     image: Image,
     activeImage: Image,
-    onClick: () => void
+    onClick: () => void,
   ) {
     this.button.on(Phaser.Input.Events.POINTER_OVER, () => {
       this.button.setTexture(activeImage).setTintFill(parseInt("00FF00", 16));

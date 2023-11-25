@@ -22,7 +22,7 @@ export class TowerControl extends Phaser.GameObjects.Container {
     position: Position,
     size: Size,
     private readonly tower: Tower,
-    options: Partial<TowerControlOptions>
+    options: Partial<TowerControlOptions>,
   ) {
     const { x, y } = position;
     super(scene, x, y);
@@ -46,7 +46,7 @@ export class TowerControl extends Phaser.GameObjects.Container {
       {
         initial: fullOptions.initialTargeting,
         onChanged: fullOptions.onTargetingChanged,
-      }
+      },
     );
     const rawTitle = this.createTitleText(tower);
     const title = scene.add

@@ -1,6 +1,6 @@
 export const createSoundConfiguration = <K extends string>(
   key: K,
-  values: Record<K, string>
+  values: Record<K, string>,
 ): Phaser.Types.Loader.FileTypes.AudioFileConfig => {
   const path = values[key];
   console.info(`# Creating audio config for key "${key}"`);

@@ -12,7 +12,7 @@ export class Upgrade extends Phaser.GameObjects.Container {
     position: Position,
     // size: Size,
     private readonly tower: Tower,
-    options: Partial<UpgradeOptions> = {}
+    options: Partial<UpgradeOptions> = {},
   ) {
     const { x, y } = position;
     // const { width, height } = size;

@@ -35,7 +35,7 @@ export class WavesBar extends Phaser.GameObjects.Rectangle {
     private readonly startWave = 0,
     private readonly maxWaves = 10,
     margin = 10,
-    private readonly callbacks: Partial<WavesBarCallbacks> = {}
+    private readonly callbacks: Partial<WavesBarCallbacks> = {},
   ) {
     const { x, y } = position;
     const { width, height } = size;
@@ -44,7 +44,7 @@ export class WavesBar extends Phaser.GameObjects.Rectangle {
       x - margin,
       y + margin,
       width + 2 * margin,
-      height + 2 * margin
+      height + 2 * margin,
     );
     this.setStrokeStyle(3, Color.Contour);
     scene.add.existing(this);
@@ -93,7 +93,7 @@ export class WavesBar extends Phaser.GameObjects.Rectangle {
       | Phaser.Tilemaps.Tile,
     collidedTile:
       | Phaser.Types.Physics.Arcade.GameObjectWithBody
-      | Phaser.Tilemaps.Tile
+      | Phaser.Tilemaps.Tile,
   ) {
     if (
       collidedPointer instanceof Phaser.Tilemaps.Tile ||
@@ -115,7 +115,7 @@ export class WavesBar extends Phaser.GameObjects.Rectangle {
   private ensureTiles() {
     const minIndex = this.currentTile.getDetails().index - this.tilesMargin;
     const outdatedTiles = this.tiles.filter(
-      (specifiedTile, index) => specifiedTile.getDetails().index < minIndex
+      (specifiedTile, index) => specifiedTile.getDetails().index < minIndex,
     );
     if (outdatedTiles.length) {
       outdatedTiles.forEach((specifiedOutdatedTile) => {
@@ -123,16 +123,16 @@ export class WavesBar extends Phaser.GameObjects.Rectangle {
         specifiedOutdatedTile.destroy(true, true);
       });
       const outdatedIndexes = outdatedTiles.map(
-        (specifiedOutdatedTile) => specifiedOutdatedTile.getDetails().index
+        (specifiedOutdatedTile) => specifiedOutdatedTile.getDetails().index,
       );
       this.tiles = this.tiles.filter(
         (specifiedTile) =>
-          !outdatedIndexes.includes(specifiedTile.getDetails().index)
+          !outdatedIndexes.includes(specifiedTile.getDetails().index),
       );
     }
     const additionalTiles = this.tiles.filter(
       (specifiedTile, index) =>
-        specifiedTile.getDetails().index > this.currentTile.getDetails().index
+        specifiedTile.getDetails().index > this.currentTile.getDetails().index,
     );
     const missingTilesCount = this.tilesMargin - additionalTiles.length;
     if (missingTilesCount > 0) {
@@ -144,7 +144,7 @@ export class WavesBar extends Phaser.GameObjects.Rectangle {
         missingTilesCount,
         newTilesStartingIndex,
         -this.currentTile.getDetails().index,
-        lastTile.getWrapper().x + lastTile.getWrapper().width
+        lastTile.getWrapper().x + lastTile.getWrapper().width,
       );
       this.tiles = [...this.tiles, ...newTiles];
       this.start();
@@ -153,7 +153,7 @@ export class WavesBar extends Phaser.GameObjects.Rectangle {
 
   private findWaveByName(name: string) {
     return this.tiles.find(
-      (specifiedTile) => specifiedTile.getReactangle().name === name
+      (specifiedTile) => specifiedTile.getReactangle().name === name,
     );
   }
 
@@ -164,7 +164,7 @@ export class WavesBar extends Phaser.GameObjects.Rectangle {
       this.y,
       this.width,
       this.height,
-      Color.Contour
+      Color.Contour,
     ).createGeometryMask();
   }
 
@@ -172,7 +172,7 @@ export class WavesBar extends Phaser.GameObjects.Rectangle {
     count: number,
     startIndex: number,
     positionShiftIndex = 0,
-    x?: number
+    x?: number,
   ) {
     const createdTiles = new Array(count).fill(null).map((_, index) => {
       const adjustedIndex = index + startIndex;
@@ -186,7 +186,7 @@ export class WavesBar extends Phaser.GameObjects.Rectangle {
         { width: this.width, height: this.height },
         name,
         adjustedIndex,
-        parseInt(rgbIntToHex(numberToColorHsl(adjustedIndex)), 16)
+        parseInt(rgbIntToHex(numberToColorHsl(adjustedIndex)), 16),
       );
       this.applyPhysicsAndMask(wave);
 
@@ -195,7 +195,7 @@ export class WavesBar extends Phaser.GameObjects.Rectangle {
     console.info(
       `# Created tiles: [${createdTiles
         .map((specifiedTile) => specifiedTile.getDetails().name)
-        .join(", ")}]`
+        .join(", ")}]`,
     );
     return createdTiles;
   }
@@ -209,7 +209,7 @@ export class WavesBar extends Phaser.GameObjects.Rectangle {
     const collider = this.scene.physics.add.overlap(
       this.pointerPhysics,
       wave,
-      (...args) => this.onOverlap(...args)
+      (...args) => this.onOverlap(...args),
     );
     wave.attachCollider(collider);
   }
@@ -224,7 +224,7 @@ export class WavesBar extends Phaser.GameObjects.Rectangle {
       this.y - height,
       width,
       height,
-      Color.Contour
+      Color.Contour,
     )
       .setName("WaveBarPointer")
       .setOrigin(0.5, 1);

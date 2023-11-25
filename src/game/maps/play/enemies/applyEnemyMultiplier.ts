@@ -2,7 +2,7 @@ import { EnemyTemplate } from "./Enemy";
 
 export const applyEnemyMultiplier = (
   template: EnemyTemplate,
-  multiplier: number
+  multiplier: number,
 ) => {
   const { life, speed, ...restOfTemplate } = template;
   return {

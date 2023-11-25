@@ -17,6 +17,6 @@ export interface TowerLevel {
 export interface TowerTemplate {
   name: string;
   shotSound: Sound;
-  defaultTargeting: TowerTargeting,
+  defaultTargeting: TowerTargeting;
   levels: TowerLevel[];
 }

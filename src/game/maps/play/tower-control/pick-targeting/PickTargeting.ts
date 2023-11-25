@@ -14,7 +14,7 @@ export class PickTargeting extends Phaser.GameObjects.Container {
   constructor(
     scene: Phaser.Scene,
     position: Position,
-    options: Partial<PickTargetingOptions>
+    options: Partial<PickTargetingOptions>,
   ) {
     const { x, y } = position;
     const { initial, onChanged } = {
@@ -27,17 +27,17 @@ export class PickTargeting extends Phaser.GameObjects.Container {
     this.onChanged = onChanged;
 
     const text = this.scene.add.existing(
-      new Label(scene, { x: 0, y: 0 }, initial)
+      new Label(scene, { x: 0, y: 0 }, initial),
     );
     const prev = this.scene.add.existing(
       new Label(scene, { x: 0 - text.width, y: 0 }, "<<", {
         onClick: () => this.handlePrev(),
-      })
+      }),
     );
     const next = this.scene.add.existing(
       new Label(scene, { x: 0 + text.width, y: 0 }, ">>", {
         onClick: () => this.handleNext(),
-      })
+      }),
     );
     this.add([prev, text, next]);
     this.scene.add.existing(this);
@@ -47,7 +47,7 @@ export class PickTargeting extends Phaser.GameObjects.Container {
   private handleNext() {
     const values = Object.values(TowerTargeting);
     const currentIndex = values.findIndex(
-      (specifiedValue) => specifiedValue === this.targeting
+      (specifiedValue) => specifiedValue === this.targeting,
     );
     const nextIndex = currentIndex + 1;
     const newValue =
@@ -58,7 +58,7 @@ export class PickTargeting extends Phaser.GameObjects.Container {
   private handlePrev() {
     const values = Object.values(TowerTargeting);
     const currentIndex = values.findIndex(
-      (specifiedValue) => specifiedValue === this.targeting
+      (specifiedValue) => specifiedValue === this.targeting,
     );
     const prevIndex = currentIndex - 1;
     const newValue =

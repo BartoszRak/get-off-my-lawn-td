@@ -25,7 +25,7 @@ export class TowerBullet extends Phaser.GameObjects.Image {
     position: Position,
     size: Size,
     private readonly target: Enemy,
-    options: Partial<TowerBulletOptions> = {}
+    options: Partial<TowerBulletOptions> = {},
   ) {
     const mergedOptions = { ...towerBulletDefaultOptions, ...options };
     const { x, y } = position;
@@ -38,7 +38,7 @@ export class TowerBullet extends Phaser.GameObjects.Image {
     this.physicsGroup = new Phaser.Physics.Arcade.Group(
       this.scene.physics.world,
       this.scene,
-      this
+      this,
     );
   }
 
@@ -54,7 +54,7 @@ export class TowerBullet extends Phaser.GameObjects.Image {
     // Calculate the angle between the bullet and the target
     const distance = Phaser.Math.Distance.BetweenPoints(
       this.getCenter(),
-      this.target.getCenterPoint()
+      this.target.getCenterPoint(),
     );
     const isTargetReached = distance < this.options.hitMargin;
     if (isTargetReached) {
@@ -66,7 +66,7 @@ export class TowerBullet extends Phaser.GameObjects.Image {
     }
     const angle = Phaser.Math.Angle.BetweenPoints(
       this.getCenter(),
-      this.target.getCenterPoint()
+      this.target.getCenterPoint(),
     );
     const degrees = Phaser.Math.RadToDeg(angle) - 90;
 

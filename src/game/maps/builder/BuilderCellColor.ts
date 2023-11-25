@@ -3,5 +3,5 @@ export enum BuilderCellColor {
   Path = "FF0000",
   Common = "000000",
   Hover = "FCBA03",
-  Staged = "00FF00"
+  Staged = "00FF00",
 }

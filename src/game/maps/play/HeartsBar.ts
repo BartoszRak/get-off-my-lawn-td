@@ -11,7 +11,7 @@ export class HeartsBar extends Phaser.GameObjects.Rectangle {
     scene: Phaser.Scene,
     position: Position,
     size: Omit<Size, "height">,
-    private readonly maxLives = 10
+    private readonly maxLives = 10,
   ) {
     const { x, y } = position;
     const { width } = size;
@@ -22,7 +22,7 @@ export class HeartsBar extends Phaser.GameObjects.Rectangle {
       x - margin,
       y + margin,
       width + 2 * margin,
-      heartSize + 2 * margin
+      heartSize + 2 * margin,
     );
     this.setStrokeStyle(3, Color.Error);
     this.margin = margin;
@@ -30,7 +30,7 @@ export class HeartsBar extends Phaser.GameObjects.Rectangle {
     this.currentLives = maxLives;
     this.hearts = this.createHearts(heartSize);
 
-    scene.add.existing(this)
+    scene.add.existing(this);
   }
 
   setLives(count: number) {
@@ -39,7 +39,7 @@ export class HeartsBar extends Phaser.GameObjects.Rectangle {
     } else {
       const validCount = this.createValidLiveCountAndLog(
         this.currentLives,
-        count
+        count,
       );
       this.currentLives = validCount;
     }
@@ -53,7 +53,7 @@ export class HeartsBar extends Phaser.GameObjects.Rectangle {
     } else {
       this.currentLives = this.createValidLiveCountAndLog(
         this.currentLives,
-        newLives
+        newLives,
       );
     }
     this.refreshHearts();
@@ -66,7 +66,7 @@ export class HeartsBar extends Phaser.GameObjects.Rectangle {
     } else {
       this.currentLives = this.createValidLiveCountAndLog(
         this.currentLives,
-        newLives
+        newLives,
       );
     }
     this.refreshHearts();
@@ -78,7 +78,7 @@ export class HeartsBar extends Phaser.GameObjects.Rectangle {
 
   private createValidLiveCountAndLog(
     currentCount: number,
-    invalidCount: number
+    invalidCount: number,
   ) {
     const validCount = this.createValidLiveCount(currentCount, invalidCount);
     const message = `Setting lives to ${validCount} instead of ${invalidCount} which is invalid lives count.`;
@@ -111,7 +111,7 @@ export class HeartsBar extends Phaser.GameObjects.Rectangle {
         this.scene,
         { x, y: this.y - this.margin },
         heartSize,
-        index < this.currentLives
+        index < this.currentLives,
       );
     });
     return hearts;

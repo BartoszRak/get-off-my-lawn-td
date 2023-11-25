@@ -10,7 +10,7 @@ export class LifeBar extends Phaser.GameObjects.Container {
     scene: Phaser.Scene,
     position: Position,
     private readonly size: Size,
-    private lifePercentage: number
+    private lifePercentage: number,
   ) {
     super(scene, position.x, position.y);
     const { x, y } = position;
@@ -21,14 +21,14 @@ export class LifeBar extends Phaser.GameObjects.Container {
       0,
       width * lifePercentage,
       height,
-      Color.Error
+      Color.Error,
     ).setOrigin(0, 0.5);
     const wrapper = new Phaser.GameObjects.Rectangle(
       scene,
       0,
       0,
       width,
-      height
+      height,
     ).setStrokeStyle(1, Color.Dark);
     scene.add.existing(bar);
     scene.add.existing(wrapper);

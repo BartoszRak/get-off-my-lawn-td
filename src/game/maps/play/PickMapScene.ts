@@ -43,7 +43,7 @@ export class PickMapScene extends Phaser.Scene {
         width / 2,
         height / 2,
         width * this.planeWidthPercentage,
-        height * this.planeWidthPercentage
+        height * this.planeWidthPercentage,
       )
       .setOrigin(0.5)
       .setStrokeStyle(1, parseInt("000000", 16));
@@ -62,7 +62,7 @@ export class PickMapScene extends Phaser.Scene {
   private createPreview(
     grid: ExportedGrid,
     wrapper: Phaser.GameObjects.Rectangle,
-    index: number
+    index: number,
   ) {
     const columnIndex = index % 3;
     const rowIndex = Math.floor(index / 3);

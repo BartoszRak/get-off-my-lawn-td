@@ -32,13 +32,13 @@ export class TowerTile extends Phaser.GameObjects.Group {
     private readonly position: Position,
     size: Size,
     public readonly data: TowerTemplate,
-    options: Partial<TowerTileOptions> = defaultOptions
+    options: Partial<TowerTileOptions> = defaultOptions,
   ) {
     super(scene);
     const preparedOptions = { ...defaultOptions, ...options };
     const preparedSize = {
-      width: size.width -  2*preparedOptions.strokeWidth,
-      height: size.height -  2*preparedOptions.strokeWidth,
+      width: size.width - 2 * preparedOptions.strokeWidth,
+      height: size.height - 2 * preparedOptions.strokeWidth,
     };
     this.size = preparedSize;
     this.options = preparedOptions;
@@ -48,7 +48,7 @@ export class TowerTile extends Phaser.GameObjects.Group {
       data,
       position,
       preparedSize,
-      preparedOptions
+      preparedOptions,
     );
     this.tower = tower;
     this.text = this.createDescription(data.name, data.levels[0].cost);
@@ -92,7 +92,7 @@ export class TowerTile extends Phaser.GameObjects.Group {
 
   private attachCallbacks(
     wrapper: Phaser.GameObjects.Rectangle,
-    text: Phaser.GameObjects.Text
+    text: Phaser.GameObjects.Text,
   ) {
     const { onClick } = this.options;
     if (onClick) {
@@ -102,7 +102,7 @@ export class TowerTile extends Phaser.GameObjects.Group {
           if (pointer.leftButtonReleased()) {
             onClick(this);
           }
-        }
+        },
       );
     }
     wrapper.on(Phaser.Input.Events.POINTER_OVER, () => {
@@ -144,7 +144,7 @@ export class TowerTile extends Phaser.GameObjects.Group {
       padding: {
         x: 5,
         y: 5,
-      }
+      },
     });
     this.scene.add.existing(text);
     return text;
@@ -155,7 +155,7 @@ export class TowerTile extends Phaser.GameObjects.Group {
     data: TowerTemplate,
     position: Position,
     size: Size,
-    options: TowerTileOptions
+    options: TowerTileOptions,
   ) {
     const width = options.percentageSizeOfTower * size.width;
     const height = options.percentageSizeOfTower * size.height;
@@ -172,7 +172,7 @@ export class TowerTile extends Phaser.GameObjects.Group {
         width,
         height,
       },
-      data
+      data,
     );
 
     return { tower, towerWrapper };
@@ -186,7 +186,7 @@ export class TowerTile extends Phaser.GameObjects.Group {
       x,
       y,
       width,
-      height
+      height,
     ).setFillStyle(Color.Light);
 
     this.scene.add.existing(wrapper);
@@ -202,11 +202,11 @@ export class TowerTile extends Phaser.GameObjects.Group {
       x,
       y,
       width,
-      height
+      height,
     )
       .setStrokeStyle(
         this.options.strokeWidth,
-        disabled ? Color.Error : this.color
+        disabled ? Color.Error : this.color,
       )
       .setFillStyle(Color.Dark)
       .setOrigin(0);

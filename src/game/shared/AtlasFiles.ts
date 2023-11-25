@@ -1,4 +1,4 @@
 export interface AtlasFiles {
-    json: string,
-    image: string
+  json: string;
+  image: string;
 }

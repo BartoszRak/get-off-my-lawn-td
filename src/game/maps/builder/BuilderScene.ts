@@ -32,7 +32,7 @@ export class BuilderScene extends Phaser.Scene {
       {
         columns: 24,
         rows: 24,
-      }
+      },
     );
     const { exportButton } = this.createButtons(grid);
     grid.on(
@@ -40,7 +40,7 @@ export class BuilderScene extends Phaser.Scene {
       (newGridToExport: ExportedGrid) => {
         this.gridToExport = newGridToExport;
         exportButton.enable();
-      }
+      },
     );
     grid.on(BuilderGridEvent.ExportUnavailable, () => {
       exportButton.disable();
@@ -72,7 +72,7 @@ export class BuilderScene extends Phaser.Scene {
           x: 15,
           y: 15,
         },
-      }
+      },
     );
 
     const exportButton = new Label(
@@ -90,7 +90,7 @@ export class BuilderScene extends Phaser.Scene {
           x: 15,
           y: 15,
         },
-      }
+      },
     );
 
     return {

@@ -20,7 +20,7 @@ export class BuilderGrid extends Phaser.GameObjects.Container {
     scene: Phaser.Scene,
     private readonly gridPosition: Position,
     private readonly gridSize: Size,
-    private readonly gridCount: RowsAndColumns
+    private readonly gridCount: RowsAndColumns,
   ) {
     super(scene);
 
@@ -31,7 +31,7 @@ export class BuilderGrid extends Phaser.GameObjects.Container {
         gridSize.width,
         gridSize.height,
         parseInt("000000", 16),
-        0.1
+        0.1,
       )
       .setOrigin(0.5)
       .setStrokeStyle(1, parseInt("000000", 16));
@@ -49,7 +49,7 @@ export class BuilderGrid extends Phaser.GameObjects.Container {
     const cellHeight = gridSize.height / gridCount.rows;
 
     const emptyRowsAndColumns: null[][] = new Array(this.gridCount.rows).fill(
-      new Array(this.gridCount.columns).fill(null)
+      new Array(this.gridCount.columns).fill(null),
     );
 
     const rowsAndColumns = emptyRowsAndColumns.map((row, rowIndex) => {
@@ -87,7 +87,7 @@ export class BuilderGrid extends Phaser.GameObjects.Container {
           height: cellWidth,
         },
         row,
-        column
+        column,
         // isEdgeCell
       );
     });
@@ -99,14 +99,14 @@ export class BuilderGrid extends Phaser.GameObjects.Container {
     this.selectedCells.forEach((specifiedCell) => {
       const neigbours = this.findNeighbours(
         specifiedCell,
-        this.selectedCells
+        this.selectedCells,
       ).filter(({ id }) => id !== specifiedCell.id);
       const neihboursMap = neigbours.reduce(
         (acc, specifiedNeihbour) => ({
           ...acc,
           [specifiedNeihbour.id]: 1,
         }),
-        {}
+        {},
       );
       route.addNode(specifiedCell.id, neihboursMap);
     });
@@ -138,7 +138,7 @@ export class BuilderGrid extends Phaser.GameObjects.Container {
 
   findNeighbours(cell: BuilderCell, restOfCells: BuilderCell[]): BuilderCell[] {
     return restOfCells.filter((specifiedCell) =>
-      cell.isNeighbourOf(specifiedCell)
+      cell.isNeighbourOf(specifiedCell),
     );
   }
 
@@ -162,13 +162,13 @@ export class BuilderGrid extends Phaser.GameObjects.Container {
         Phaser.Input.Events.POINTER_DOWN,
         (pointer: Phaser.Input.Pointer) => {
           this.onCellClicked(specifiedCell, pointer.rightButtonDown());
-        }
+        },
       );
       specifiedCell.on(
         Phaser.Input.Events.POINTER_UP,
         (pointer: Phaser.Input.Pointer) => {
           this.onCellReleased(specifiedCell, pointer.rightButtonReleased());
-        }
+        },
       );
       specifiedCell.on(Phaser.Input.Events.POINTER_OUT, () => {
         // console.log("--- POINTER OUT", specifiedCell.id);
@@ -249,7 +249,7 @@ export class BuilderGrid extends Phaser.GameObjects.Container {
 
   private isAlreadySelected(cell: BuilderCell) {
     return isDefined(
-      this.selectedCells.find((specifiedCell) => specifiedCell.id === cell.id)
+      this.selectedCells.find((specifiedCell) => specifiedCell.id === cell.id),
     );
   }
 }

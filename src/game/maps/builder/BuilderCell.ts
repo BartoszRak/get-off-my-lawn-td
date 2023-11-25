@@ -18,7 +18,7 @@ export class BuilderCell extends Phaser.GameObjects.Container {
     private readonly cellSize: Size,
     readonly row: number,
     readonly column: number,
-    private isAvailable: boolean = true
+    private isAvailable: boolean = true,
   ) {
     super(scene);
     this.id = `${row}-${column}`;
@@ -30,7 +30,7 @@ export class BuilderCell extends Phaser.GameObjects.Container {
         cellSize.width,
         cellSize.height,
         parseInt(BuilderCellColor.Common, 16),
-        isAvailable ? 0 : 0.5
+        isAvailable ? 0 : 0.5,
       )
       .setOrigin(1)
       .setStrokeStyle(0.5, parseInt(BuilderCellColor.Common, 16));
@@ -95,7 +95,7 @@ export class BuilderCell extends Phaser.GameObjects.Container {
         "ENTRY",
         {
           color: "000000",
-        }
+        },
       )
       .setOrigin(1);
   }

@@ -1,6 +1,6 @@
 export const createImageConfiguration = <K extends string>(
   key: K,
-  values: Record<K, string>
+  values: Record<K, string>,
 ): Phaser.Types.Loader.FileTypes.ImageFileConfig => {
   const path = values[key];
   console.info(`# Creating image config for key "${key}"`);

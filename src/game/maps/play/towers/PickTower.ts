@@ -29,7 +29,7 @@ export class PickTower extends Phaser.GameObjects.Group {
     private readonly position: Position,
     { width }: Omit<Size, "height">,
     towers: TowerTemplate[],
-    options: Partial<PickTowerOptions> = defaultOptions
+    options: Partial<PickTowerOptions> = defaultOptions,
   ) {
     super(scene);
     const fullOptions: PickTowerOptions = {
@@ -42,7 +42,7 @@ export class PickTower extends Phaser.GameObjects.Group {
       width,
       height: rows * tileSize,
     };
-    this.size = size
+    this.size = size;
     this.options = {
       ...fullOptions,
       tileSize,
@@ -84,7 +84,7 @@ export class PickTower extends Phaser.GameObjects.Group {
           strokeWidth: 0,
           onClick: (...args) => this.handleTowerPick(...args),
           disabled,
-        }
+        },
       );
       this.scene.add.existing(tile);
       return tile;
@@ -99,7 +99,7 @@ export class PickTower extends Phaser.GameObjects.Group {
       x,
       y,
       width,
-      height
+      height,
     ).setStrokeStyle(2, Color.Contour);
     this.scene.add.existing(wrapper);
 

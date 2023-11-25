@@ -21,7 +21,7 @@ const foo = <T extends Record<string, string>>(value: T) => {
   console.log(value);
 };
 
-foo(TowerImage)
+foo(TowerImage);
 
 export const towerImages: Record<string, string> = {
   [TowerImage.MachineGun1]: "./assets/towers/machine_gun/machine_gun1.png",

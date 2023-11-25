@@ -19,7 +19,7 @@ export class GameCell extends Phaser.GameObjects.Rectangle {
     public readonly id: CellId,
     cellPosition: Position,
     cellSize: Size,
-    options: Partial<GameCellOptions>
+    options: Partial<GameCellOptions>,
   ) {
     const mergedOptions: GameCellOptions = {
       ...defaultGameCellOptions,
@@ -48,20 +48,20 @@ export class GameCell extends Phaser.GameObjects.Rectangle {
       cellSize.width,
       cellSize.height,
       color,
-      isStart || isEnd ? 0.2 : 1
+      isStart || isEnd ? 0.2 : 1,
     );
     this.specifiedColor = color;
     this.options = mergedOptions;
   }
 
   select() {
-    this.cleanBuiltTowerCallbacks()
+    this.cleanBuiltTowerCallbacks();
     this.isSelected = true;
     this.setSelectedColor();
   }
 
   unselect() {
-    this.attachBuiltTowerCallbacks()
+    this.attachBuiltTowerCallbacks();
     this.isSelected = false;
     this.resetColor();
   }
@@ -81,7 +81,7 @@ export class GameCell extends Phaser.GameObjects.Rectangle {
     if (this.tower) {
       console.warn(
         "! You are trying to make pickable cell with placed tower !",
-        this
+        this,
       );
       return;
     }
@@ -103,7 +103,7 @@ export class GameCell extends Phaser.GameObjects.Rectangle {
     if (this.tower) {
       console.warn(
         "! You are trying to make unpickable cell with placed tower !",
-        this
+        this,
       );
       return;
     }
@@ -137,7 +137,7 @@ export class GameCell extends Phaser.GameObjects.Rectangle {
         height,
       },
       data,
-      options
+      options,
     );
   }
 
@@ -158,11 +158,11 @@ export class GameCell extends Phaser.GameObjects.Rectangle {
             } else {
               console.warn(
                 "! There is built tower onClick callback attached but there is no tower place at the cell !",
-                this
+                this,
               );
             }
           }
-        }
+        },
       );
     }
     this.on(Phaser.Input.Events.POINTER_OVER, () => {
@@ -199,7 +199,7 @@ export class GameCell extends Phaser.GameObjects.Rectangle {
           if (pointer.leftButtonReleased()) {
             onPicked(this);
           }
-        }
+        },
       );
     }
     this.on(Phaser.Input.Events.POINTER_OVER, () => {

@@ -37,7 +37,7 @@ export default class StartScene extends Phaser.Scene {
       yoyo: true,
     });
     this.input.keyboard?.on(Phaser.Input.Keyboard.Events.ANY_KEY_DOWN, () =>
-      this.startGame()
+      this.startGame(),
     );
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       this.input.keyboard?.off(Phaser.Input.Keyboard.Events.ANY_KEY_DOWN);

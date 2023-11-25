@@ -41,7 +41,7 @@ export class Label extends Phaser.GameObjects.Text {
     scene: Phaser.Scene,
     position: Position,
     text: string,
-    options: Partial<LabelOptions> = {}
+    options: Partial<LabelOptions> = {},
   ) {
     const { x, y } = position;
     const preparedOptions: LabelOptions = {
@@ -85,7 +85,7 @@ export class Label extends Phaser.GameObjects.Text {
       onClick: Required<LabelOptions>["onClick"];
       id: string;
     },
-    isDisabled?: boolean
+    isDisabled?: boolean,
   ) {
     if (!isDisabled) {
       this.setInteractive();

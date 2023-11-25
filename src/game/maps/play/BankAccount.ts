@@ -9,7 +9,7 @@ export class BankAccount extends Phaser.GameObjects.Group {
     position: Position,
     fontSize: number,
     padding: number,
-    private money = 0
+    private money = 0,
   ) {
     super(scene);
 
@@ -33,7 +33,7 @@ export class BankAccount extends Phaser.GameObjects.Group {
     position: Position,
     fontSize: number,
     padding: number,
-    money: number
+    money: number,
   ) {
     const { x, y } = position;
     const text = new Phaser.GameObjects.Text(
@@ -50,7 +50,7 @@ export class BankAccount extends Phaser.GameObjects.Group {
           x: padding,
           y: padding,
         },
-      }
+      },
     );
     scene.add.existing(text);
     return text;

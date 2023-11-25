@@ -12,7 +12,7 @@ export class WaveTile extends Phaser.GameObjects.Group {
     { width, height }: Size,
     private waveName: string,
     private index: number,
-    color = Color.Success
+    color = Color.Success,
   ) {
     const rectangle = new Phaser.GameObjects.Rectangle(
       scene,
@@ -20,7 +20,7 @@ export class WaveTile extends Phaser.GameObjects.Group {
       y,
       width,
       height,
-      color
+      color,
     )
       .setStrokeStyle(2, Color.Contour)
       .setName(`${waveName}Rectangle`);
