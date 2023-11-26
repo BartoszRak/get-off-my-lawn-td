@@ -103,14 +103,14 @@ export class GameScene extends Phaser.Scene {
     //Towers
     const towerImagesConfigurations = createMultipleImagesConfigurations(
       TowerImage,
-      towerImages,
+      towerImages
     );
     this.load.image(towerImagesConfigurations);
 
     // Sounds
     const soundsConfigurations = createMultipleSoundsConfigurations(
       Sound,
-      sounds,
+      sounds
     );
     this.load.audio(soundsConfigurations);
 
@@ -118,13 +118,13 @@ export class GameScene extends Phaser.Scene {
       Object.values(EnemyAtlas)
         .map(
           (
-            enemyKey,
+            enemyKey
           ): Phaser.Types.Loader.FileTypes.AtlasJSONFileConfig | null => {
             console.info(`# Creating atlas for enemy "${enemyKey}"`);
             const atlasConfig = EnemyAtlases[enemyKey];
             if (!atlasConfig) {
               const error = new Error(
-                `!!! Missing atlas config for enemy "${enemyKey}"`,
+                `!!! Missing atlas config for enemy "${enemyKey}"`
               );
               console.error(error);
               return null;
@@ -134,7 +134,7 @@ export class GameScene extends Phaser.Scene {
               textureURL: atlasConfig.image,
               atlasURL: atlasConfig.json,
             };
-          },
+          }
         )
         .filter(isDefined);
     this.load.atlas(enemiesAtlasConfigurations);
@@ -158,7 +158,7 @@ export class GameScene extends Phaser.Scene {
       {
         onPlay: () => this.onPlay(),
         onStop: () => this.onStop(),
-      },
+      }
     );
     this.heartsBar = new HeartsBar(
       this,
@@ -167,7 +167,7 @@ export class GameScene extends Phaser.Scene {
         y: 30,
       },
       { width: barWidth },
-      10,
+      10
     );
     const startWaveIndex = 3;
     this.wavesBar = new WavesBar(
@@ -180,7 +180,7 @@ export class GameScene extends Phaser.Scene {
       startWaveIndex,
       100,
       undefined,
-      { onWaveChanged: (...args) => this.onWaveChanged(...args) },
+      { onWaveChanged: (...args) => this.onWaveChanged(...args) }
     );
     this.wavesInfo = this.add.text(
       width - barWidth / 4 - 20,
@@ -189,7 +189,7 @@ export class GameScene extends Phaser.Scene {
       {
         fontSize: 25,
         color: RawColor.Contour,
-      },
+      }
     );
     this.pickTower = new PickTower(
       this,
@@ -203,14 +203,14 @@ export class GameScene extends Phaser.Scene {
       {
         money: this.balance,
         onTowerPicked: (...args) => this.onTowerPicked(...args),
-      },
+      }
     );
     this.bankAccount = new BankAccount(
       this,
       { x: 20, y: 20 },
       20,
       10,
-      this.balance,
+      this.balance
     );
 
     this.waveChangedSound = this.sound.add(Sound.Bell);
@@ -223,7 +223,7 @@ export class GameScene extends Phaser.Scene {
         if (pointer.rightButtonReleased()) {
           this.cancelAnyActions();
         }
-      },
+      }
     );
 
     console.log("--- create game scene", data);
@@ -311,6 +311,9 @@ export class GameScene extends Phaser.Scene {
     this.balance = newBalance;
     this.bankAccount.setMoney(newBalance);
     this.pickTower.updateBalance(newBalance);
+    if (this.towerControl) {
+      this.towerControl.updateBalance(newBalance);
+    }
   }
 
   private removeMoney(amount: number) {
@@ -318,6 +321,9 @@ export class GameScene extends Phaser.Scene {
     this.balance = newBalance;
     this.bankAccount.setMoney(newBalance);
     this.pickTower.updateBalance(newBalance);
+    if (this.towerControl) {
+      this.towerControl.updateBalance(newBalance);
+    }
   }
 
   private createWaveInfoMessage(waveIndex: number) {
@@ -382,8 +388,11 @@ export class GameScene extends Phaser.Scene {
           console.warn("### Targeting changed", newTargeting);
           tower.updateTargeting(newTargeting);
         },
+        onUpgraded: (oldLvl: number, newLvl: number, upgradeCost: number) => {
+          this.removeMoney(upgradeCost);
+        },
         initialTargeting: tower.getTargeting(),
-      },
+      }
     );
   }
 

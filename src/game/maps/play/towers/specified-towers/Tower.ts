@@ -41,7 +41,7 @@ export class Tower extends Phaser.GameObjects.Group {
     private readonly size: Size,
     public readonly data: TowerTemplate,
     options: Partial<TowerOptions> = defaultOptions,
-    private level = 0,
+    private level = 0
   ) {
     super(scene);
     const mergedOptions = { ...options, ...defaultOptions };
@@ -49,10 +49,11 @@ export class Tower extends Phaser.GameObjects.Group {
     this.targeting = data.defaultTargeting;
 
     this.wrapper = this.createWrapper();
-    this.base = this.createImage(data.levels[level].images.base, this.size);
-    this.barrel = this.createImage(data.levels[level].images.barrel, this.size);
+    const currentData = this.getCurrentData();
+    this.base = this.createImage(currentData.images.base, this.size);
+    this.barrel = this.createImage(currentData.images.barrel, this.size);
     if (mergedOptions.displayRange) {
-      this.range = this.createRange(scene, position, data.levels[level].range);
+      this.range = this.createRange(scene, position, currentData.range);
     }
 
     this.baseChildrens = [this.wrapper, this.base, this.barrel];
@@ -71,7 +72,7 @@ export class Tower extends Phaser.GameObjects.Group {
 
   stop() {
     (this.bulletsGroup.getChildren() as TowerBullet[]).forEach(
-      (specifiedBullet) => specifiedBullet.stop(),
+      (specifiedBullet) => specifiedBullet.stop()
     );
   }
 
@@ -87,16 +88,34 @@ export class Tower extends Phaser.GameObjects.Group {
     return this.getCurrentLevel() < this.getMaxLevel();
   }
 
+  getUpgradeCost() {
+    return this.getCurrentData().cost;
+  }
+
   upgrade() {
     const oldLvl = this.level;
     if (this.canBeUpgraded()) {
       this.level += 1;
+      this.updateAfterUpgrade();
     }
     return {
       canBeUpgradedAgain: this.canBeUpgraded(),
       oldLvl,
       newLvl: this.level,
     };
+  }
+
+  private updateAfterUpgrade() {
+    const data = this.getCurrentData();
+    this.barrel.setTexture(data.images.barrel);
+    this.base.setTexture(data.images.base);
+    if (this.range) {
+      this.range.setRadius(data.range);
+    }
+    if (this.shootingTimerEvent && this.lockedOn) {
+      this.destroyShootingTimerEventEventually();
+      this.createShootingTimerEvent(1000 / data.rateOfFire, this.lockedOn);
+    }
   }
 
   setAlpha(value: number, step?: number | undefined): this {
@@ -110,7 +129,7 @@ export class Tower extends Phaser.GameObjects.Group {
   update(availableEnemies: Enemy[]) {
     const newTargetToLockOn = this.findNewTargetToLock(
       availableEnemies,
-      this.getTargeting(),
+      this.getTargeting()
     );
     if (newTargetToLockOn) {
       this.lockOn(newTargetToLockOn);
@@ -129,7 +148,7 @@ export class Tower extends Phaser.GameObjects.Group {
 
   private updateAllBullets() {
     (this.bulletsGroup.getChildren() as TowerBullet[]).forEach(
-      (specifiedBullet) => specifiedBullet.update(),
+      (specifiedBullet) => specifiedBullet.update()
     );
   }
 
@@ -143,10 +162,17 @@ export class Tower extends Phaser.GameObjects.Group {
     const { rateOfFire } = this.getCurrentData();
     const shootsIntervalInMs = 1000 / rateOfFire;
     console.info(
-      `# Lock on (rate of fire: ${rateOfFire}, interval in ms: ${shootsIntervalInMs})`,
+      `# Lock on (rate of fire: ${rateOfFire}, interval in ms: ${shootsIntervalInMs})`
     );
     this.destroyShootingTimerEventEventually();
     this.shootBullet(enemyWithDistance);
+    this.createShootingTimerEvent(shootsIntervalInMs, enemyWithDistance);
+  }
+
+  private createShootingTimerEvent(
+    shootsIntervalInMs: number,
+    enemyWithDistance: EnemyWithDistance
+  ) {
     this.shootingTimerEvent = this.scene.time.addEvent({
       delay: shootsIntervalInMs,
       loop: true,
@@ -174,7 +200,7 @@ export class Tower extends Phaser.GameObjects.Group {
       {
         image: images.bullet,
         damage,
-      },
+      }
     );
     this.bulletsGroup.add(bullet);
   }
@@ -208,7 +234,7 @@ export class Tower extends Phaser.GameObjects.Group {
     const { enemy } = lockedEnemy;
     const angle = Phaser.Math.Angle.BetweenPoints(
       enemy.getCenterPoint(),
-      this.getCenterPoint(),
+      this.getCenterPoint()
     );
     // Explanation: Not really sure why do we need subtraction here because angle is shifted?
     const degrees = Phaser.Math.RadToDeg(angle) - 90;
@@ -217,7 +243,7 @@ export class Tower extends Phaser.GameObjects.Group {
 
   private findNewTargetToLock(
     enemies: Enemy[],
-    targeting: TowerTargeting,
+    targeting: TowerTargeting
   ): EnemyWithDistance | undefined {
     const targetToLockOn = this.findEnemyByStrategy(enemies, targeting);
     if (!targetToLockOn) {
@@ -269,7 +295,7 @@ export class Tower extends Phaser.GameObjects.Group {
       {
         enemy: undefined,
         pathDelta: Number.MIN_VALUE,
-      },
+      }
     );
     return isKeyDefined(results, "enemy") ? results.enemy : undefined;
   }
@@ -293,7 +319,7 @@ export class Tower extends Phaser.GameObjects.Group {
       {
         enemy: undefined,
         pathDelta: Number.MAX_VALUE,
-      },
+      }
     );
     return isKeyDefined(results, "enemy") ? results.enemy : undefined;
   }
@@ -316,7 +342,7 @@ export class Tower extends Phaser.GameObjects.Group {
       {
         enemy: undefined,
         distance: Number.MAX_VALUE,
-      },
+      }
     );
     return isKeyDefined(results, "enemy") ? results.enemy : undefined;
   }
@@ -340,7 +366,7 @@ export class Tower extends Phaser.GameObjects.Group {
       {
         enemy: undefined,
         maxLife: Number.MIN_VALUE,
-      },
+      }
     );
     return isKeyDefined(results, "enemy") ? results.enemy : undefined;
   }
@@ -364,7 +390,7 @@ export class Tower extends Phaser.GameObjects.Group {
       {
         enemy: undefined,
         maxLife: Number.MAX_VALUE,
-      },
+      }
     );
     return isKeyDefined(results, "enemy") ? results.enemy : undefined;
   }
@@ -388,7 +414,7 @@ export class Tower extends Phaser.GameObjects.Group {
       {
         enemy: undefined,
         speed: Number.MIN_VALUE,
-      },
+      }
     );
     return isKeyDefined(results, "enemy") ? results.enemy : undefined;
   }
@@ -416,7 +442,7 @@ export class Tower extends Phaser.GameObjects.Group {
       {
         enemy: undefined,
         speed: Number.MAX_VALUE,
-      },
+      }
     );
     return isKeyDefined(results, "enemy") ? results.enemy : undefined;
   }
@@ -442,7 +468,7 @@ export class Tower extends Phaser.GameObjects.Group {
   private getDistanceTo(enemy: Enemy) {
     return Phaser.Math.Distance.BetweenPoints(
       this.getCenterPoint(),
-      enemy.getCenterPoint(),
+      enemy.getCenterPoint()
     );
   }
 
@@ -467,7 +493,7 @@ export class Tower extends Phaser.GameObjects.Group {
       this.scene,
       x,
       y,
-      imageSource,
+      imageSource
     ).setDisplaySize(width, height);
     this.scene.add.existing(image);
 
@@ -482,7 +508,7 @@ export class Tower extends Phaser.GameObjects.Group {
       x,
       y,
       width,
-      height,
+      height
     ).setStrokeStyle(2, Color.Contour);
     this.scene.add.existing(wrapper);
 

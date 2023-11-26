@@ -1,3 +1,8 @@
 export interface UpgradeOptions {
-  onUpgraded?: (oldLvl: number, newLvl: number) => void;
+  balance: number;
+  onUpgraded?: (oldLvl: number, newLvl: number, upgradeCost: number) => void;
 }
+
+export const defaultUpgradeOptions: UpgradeOptions = {
+  balance: 0,
+};

@@ -17,12 +17,14 @@ export class TowerControl extends Phaser.GameObjects.Container {
   private readonly detailsText: Phaser.GameObjects.Text;
   private readonly upgrade: Upgrade;
 
+  private readonly options: TowerControlOptions;
+
   constructor(
     scene: Phaser.Scene,
     position: Position,
     size: Size,
     private readonly tower: Tower,
-    options: Partial<TowerControlOptions>,
+    options: Partial<TowerControlOptions>
   ) {
     const { x, y } = position;
     super(scene, x, y);
@@ -32,6 +34,7 @@ export class TowerControl extends Phaser.GameObjects.Container {
       ...defaultTowerControlOptions,
       ...options,
     };
+    this.options = fullOptions;
     const wrapper = scene.add.rectangle(0, 0, width, height, Color.Warn, 1);
     const pickTargetingText = scene.add
       .text(0, height / 5, "Pick targeting", {
@@ -46,7 +49,7 @@ export class TowerControl extends Phaser.GameObjects.Container {
       {
         initial: fullOptions.initialTargeting,
         onChanged: fullOptions.onTargetingChanged,
-      },
+      }
     );
     const rawTitle = this.createTitleText(tower);
     const title = scene.add
@@ -65,7 +68,7 @@ export class TowerControl extends Phaser.GameObjects.Container {
       })
       .setOrigin(0.5);
     const upgrade = new Upgrade(scene, { x: 0, y: 0 }, tower, {
-      onUpgraded: () => this.handleUpgrade(),
+      onUpgraded: (...args) => this.handleUpgrade(...args),
     });
 
     this.add([
@@ -86,9 +89,17 @@ export class TowerControl extends Phaser.GameObjects.Container {
     this.upgrade = upgrade;
   }
 
-  private handleUpgrade() {
+  updateBalance(balance: number) {
+    this.upgrade.updateBalance(balance);
+  }
+
+  private handleUpgrade(oldLvl: number, newLvl: number, upgradeCost: number) {
     this.updateTitle(this.tower);
     this.updateDetails(this.tower);
+    const { onUpgraded } = this.options;
+    if (onUpgraded) {
+      onUpgraded(oldLvl, newLvl, upgradeCost);
+    }
   }
 
   private createTitleText(tower: Tower) {
