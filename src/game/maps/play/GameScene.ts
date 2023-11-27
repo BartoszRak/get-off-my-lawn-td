@@ -262,14 +262,7 @@ export class GameScene extends Phaser.Scene {
     const data = applyEnemyMultiplier(basicZombieEnemyTemplate, multiplier);
     const count = this.enemiesPerWave;
     const delay = this.enemySpawnIntervalInMs;
-
-    console.info(`# Spawn enemies for wave ${wave.getDetails().name}`, {
-      count,
-      delay,
-      data,
-      multiplier,
-    });
-
+    
     return this.time.addEvent({
       callback: () => this.map.spawnEnemy(data),
       delay,
@@ -332,12 +325,13 @@ export class GameScene extends Phaser.Scene {
 
   private onPlay() {
     console.info("# GameScene - play");
-    this.isStopped = false;
+    this.map.startTowers()
     this.startPassiveIncome();
     this.wavesBar.start();
     if (this.spawnEnemiesTimerEvent) {
       this.spawnEnemiesTimerEvent.paused = false;
     }
+    this.isStopped = false;
   }
 
   private onStop() {

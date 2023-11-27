@@ -31,11 +31,11 @@ export class GameMap extends Phaser.GameObjects.Container {
     private readonly mapPosition: Position,
     private readonly mapSize: Size,
     exportedGrid: ExportedGrid,
-    private readonly options: GameMapOptions<GameMap> = {},
+    private readonly options: GameMapOptions<GameMap> = {}
   ) {
     super(scene);
     this.pathIds = exportedGrid.pathIds.map((rawId) =>
-      CellId.fromExisting(rawId),
+      CellId.fromExisting(rawId)
     );
     this.columns = exportedGrid.columns;
     this.rows = exportedGrid.rows;
@@ -69,14 +69,18 @@ export class GameMap extends Phaser.GameObjects.Container {
 
   updateEnemies(time: number, delta: number) {
     (this.enemiesGroup.getChildren() as Enemy[]).forEach((specifiedEnemy) =>
-      specifiedEnemy.update(time, delta),
+      specifiedEnemy.update(time, delta)
     );
   }
 
   updateTowers(time: number, delta: number) {
     this.towers.forEach((specifiedTower) =>
-      specifiedTower.update(this.enemiesGroup.getChildren() as Enemy[]),
+      specifiedTower.update(this.enemiesGroup.getChildren() as Enemy[])
     );
+  }
+
+  startTowers() {
+    this.towers.forEach((specifiedTower) => specifiedTower.start());
   }
 
   stopTowers() {
@@ -92,7 +96,7 @@ export class GameMap extends Phaser.GameObjects.Container {
       { x, y },
       this.cellSize,
       data,
-      this.path,
+      this.path
     );
     this.enemiesGroup.add(enemy);
   }
@@ -123,7 +127,7 @@ export class GameMap extends Phaser.GameObjects.Container {
         return {
           cell: specifiedCell,
           order: this.pathIds.findIndex(
-            (cellId) => cellId.value === specifiedCell.id.value,
+            (cellId) => cellId.value === specifiedCell.id.value
           ),
         };
       });
@@ -132,7 +136,7 @@ export class GameMap extends Phaser.GameObjects.Container {
     const startCell = pathCells[0];
     const path = new Phaser.Curves.Path(startCell.x, startCell.y);
     pathCells.forEach((specifiedCell) =>
-      path.lineTo(specifiedCell.x, specifiedCell.y),
+      path.lineTo(specifiedCell.x, specifiedCell.y)
     );
     const graphics = this.scene.add.graphics({
       lineStyle: {
@@ -188,7 +192,7 @@ export class GameMap extends Phaser.GameObjects.Container {
       new CellId(rowIndex, columnIndex),
       position,
       this.cellSize,
-      options,
+      options
     );
   }
 
@@ -198,7 +202,7 @@ export class GameMap extends Phaser.GameObjects.Container {
         this.mapPosition.x,
         this.mapPosition.y,
         this.mapSize.width,
-        this.mapSize.height,
+        this.mapSize.height
       )
       .setStrokeStyle(2, parseInt("000000", 16))
       .setOrigin(0.5);

@@ -1,7 +1,5 @@
 import { Position, Size, isDefined, isKeyDefined } from "../../../../../utils";
 import { Color } from "../../../../Color";
-import { Image } from "../../../../Image";
-import { Sound } from "../../../../Sound";
 import { TowerImage } from "../../../../TowerImage";
 import { Enemy } from "../../enemies/Enemy";
 import { EnemyWithDistance } from "../../enemies/EnemyWithDistance";
@@ -29,7 +27,7 @@ export class Tower extends Phaser.GameObjects.Group {
     | Phaser.GameObjects.Rectangle
     | Phaser.GameObjects.Image
   )[];
-  private lockedOn?: EnemyWithDistance;
+  private lockedOn?: Enemy;
   private shootingTimerEvent?: Phaser.Time.TimerEvent;
   private readonly bulletsGroup: Phaser.GameObjects.Group;
   private readonly shootSound: Phaser.Sound.BaseSound;
@@ -70,7 +68,16 @@ export class Tower extends Phaser.GameObjects.Group {
     return this.targeting;
   }
 
+  start() {
+    if (this.shootingTimerEvent) {
+      this.shootingTimerEvent.paused = false;
+    }
+  }
+
   stop() {
+    if (this.shootingTimerEvent) {
+      this.shootingTimerEvent.paused = true;
+    }
     (this.bulletsGroup.getChildren() as TowerBullet[]).forEach(
       (specifiedBullet) => specifiedBullet.stop()
     );
@@ -132,11 +139,13 @@ export class Tower extends Phaser.GameObjects.Group {
       this.getTargeting()
     );
     if (newTargetToLockOn) {
-      this.lockOn(newTargetToLockOn);
+      // this.removeLock()
+      this.lockOn(newTargetToLockOn.enemy);
     }
     if (this.lockedOn) {
-      const isInRange = this.isEnemyInRange(this.lockedOn.enemy).isInRange;
-      if (isInRange && this.lockedOn.enemy.active) {
+      const isInRange = this.isEnemyInRange(this.lockedOn).isInRange;
+
+      if (isInRange && this.lockedOn.active) {
         this.updateRotation(this.lockedOn);
         this.updateLaser(this.lockedOn);
       } else {
@@ -157,46 +166,51 @@ export class Tower extends Phaser.GameObjects.Group {
     this.lockedOn = undefined;
   }
 
-  private lockOn(enemyWithDistance: EnemyWithDistance) {
-    this.lockedOn = enemyWithDistance;
+  private lockOn(enemy: Enemy) {
+    const remainingMs = this.destroyShootingTimerEventEventually();
+    this.lockedOn = enemy;
     const { rateOfFire } = this.getCurrentData();
     const shootsIntervalInMs = 1000 / rateOfFire;
     console.info(
-      `# Lock on (rate of fire: ${rateOfFire}, interval in ms: ${shootsIntervalInMs})`
+      `# Lock on ${enemy.id} (rate of fire: ${rateOfFire}, interval in ms: ${shootsIntervalInMs})`
     );
-    this.destroyShootingTimerEventEventually();
-    this.shootBullet(enemyWithDistance);
-    this.createShootingTimerEvent(shootsIntervalInMs, enemyWithDistance);
+    this.createShootingTimerEvent(shootsIntervalInMs, enemy, remainingMs);
   }
 
   private createShootingTimerEvent(
     shootsIntervalInMs: number,
-    enemyWithDistance: EnemyWithDistance
+    enemy: Enemy,
+    remainingMs = 0
   ) {
     this.shootingTimerEvent = this.scene.time.addEvent({
       delay: shootsIntervalInMs,
       loop: true,
-      callback: () => this.shootBullet(enemyWithDistance),
+      startAt: shootsIntervalInMs - remainingMs,
+      callback: () => {
+        this.shootBullet(enemy);
+      },
     });
   }
 
   private destroyShootingTimerEventEventually() {
     if (this.shootingTimerEvent) {
       this.shootingTimerEvent.paused = true;
+      const remainingMs = this.shootingTimerEvent.getRemaining();
       this.shootingTimerEvent.remove();
       this.shootingTimerEvent = undefined;
+      return remainingMs;
     }
+    return 0;
   }
 
-  private shootBullet(enemyWithDistance: EnemyWithDistance) {
-    console.info("# Bullet shot");
+  private shootBullet(enemy: Enemy) {
     this.shootSound.play();
     const { images, damage } = this.getCurrentData();
     const bullet = new TowerBullet(
       this.scene,
       this.position,
       this.size,
-      enemyWithDistance.enemy,
+      enemy,
       {
         image: images.bullet,
         damage,
@@ -205,13 +219,13 @@ export class Tower extends Phaser.GameObjects.Group {
     this.bulletsGroup.add(bullet);
   }
 
-  private updateLaser(lockedEnemy: EnemyWithDistance) {
+  private updateLaser(lockedEnemy: Enemy) {
     if (this.laser) {
       this.laser?.destroy(true);
       this.laser = undefined;
     }
     const center = this.getCenterPoint();
-    const enemyCenter = lockedEnemy.enemy.getCenterPoint();
+    const enemyCenter = lockedEnemy.getCenterPoint();
 
     const path = new Phaser.Curves.Path(center.x, center.y);
     path.lineTo(enemyCenter.x, enemyCenter.y);
@@ -230,8 +244,7 @@ export class Tower extends Phaser.GameObjects.Group {
     this.add(graphics);
   }
 
-  private updateRotation(lockedEnemy: EnemyWithDistance) {
-    const { enemy } = lockedEnemy;
+  private updateRotation(enemy: Enemy) {
     const angle = Phaser.Math.Angle.BetweenPoints(
       enemy.getCenterPoint(),
       this.getCenterPoint()
@@ -252,7 +265,7 @@ export class Tower extends Phaser.GameObjects.Group {
     if (!this.lockedOn) {
       return targetToLockOn;
     }
-    const isAlreadyLocked = this.lockedOn.enemy.id === targetToLockOn.enemy.id;
+    const isAlreadyLocked = this.lockedOn.id === targetToLockOn.enemy.id;
     const preparedTarget = isAlreadyLocked ? undefined : targetToLockOn;
     return preparedTarget;
   }
