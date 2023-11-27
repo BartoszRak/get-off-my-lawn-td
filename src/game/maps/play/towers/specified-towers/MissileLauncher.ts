@@ -7,6 +7,7 @@ export const missileLauncherTowerTemplate: TowerTemplate = {
   name: "Missile launcher",
   shotSound: Sound.MissileLauncherShoot,
   defaultTargeting: TowerTargeting.First,
+  bulletSpeed:150,
   levels: [
     {
       cost: 100,

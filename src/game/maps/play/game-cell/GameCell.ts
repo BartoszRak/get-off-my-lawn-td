@@ -19,7 +19,7 @@ export class GameCell extends Phaser.GameObjects.Rectangle {
     public readonly id: CellId,
     cellPosition: Position,
     cellSize: Size,
-    options: Partial<GameCellOptions>,
+    options: Partial<GameCellOptions>
   ) {
     const mergedOptions: GameCellOptions = {
       ...defaultGameCellOptions,
@@ -48,7 +48,7 @@ export class GameCell extends Phaser.GameObjects.Rectangle {
       cellSize.width,
       cellSize.height,
       color,
-      isStart || isEnd ? 0.2 : 1,
+      isStart || isEnd ? 0.2 : 1
     );
     this.specifiedColor = color;
     this.options = mergedOptions;
@@ -67,6 +67,7 @@ export class GameCell extends Phaser.GameObjects.Rectangle {
   }
 
   placeTower(data: TowerTemplate) {
+    this.makeUnpickable();
     this.cleanPickableCallbacks();
     const { onTowerPlaced } = this.options;
     const createdTower = this.createTower(data);
@@ -81,7 +82,7 @@ export class GameCell extends Phaser.GameObjects.Rectangle {
     if (this.tower) {
       console.warn(
         "! You are trying to make pickable cell with placed tower !",
-        this,
+        this
       );
       return;
     }
@@ -103,7 +104,7 @@ export class GameCell extends Phaser.GameObjects.Rectangle {
     if (this.tower) {
       console.warn(
         "! You are trying to make unpickable cell with placed tower !",
-        this,
+        this
       );
       return;
     }
@@ -137,12 +138,11 @@ export class GameCell extends Phaser.GameObjects.Rectangle {
         height,
       },
       data,
-      options,
+      options
     );
   }
 
   private attachBuiltTowerCallbacks() {
-    console.warn("### ATTACH BUILT CALLBACKS");
     this.setInteractive({
       cursor: "url(assets/cursor_hand.png), default",
     });
@@ -151,26 +151,23 @@ export class GameCell extends Phaser.GameObjects.Rectangle {
       this.on(
         Phaser.Input.Events.POINTER_UP,
         (pointer: Phaser.Input.Pointer) => {
-          console.warn("### BUILT CALLBACKS - pointer up");
           if (pointer.leftButtonReleased()) {
             if (this.tower) {
               onBuiltTowerClicked(this.tower, this);
             } else {
               console.warn(
                 "! There is built tower onClick callback attached but there is no tower place at the cell !",
-                this,
+                this
               );
             }
           }
-        },
+        }
       );
     }
     this.on(Phaser.Input.Events.POINTER_OVER, () => {
-      console.warn("### BUILT CALLBACKS - pointer over");
       this.setSelectedColor();
     });
     this.on(Phaser.Input.Events.POINTER_OUT, () => {
-      console.warn("### BUILT CALLBACKS - pointer out");
       this.resetColor();
     });
     this.scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
@@ -179,7 +176,6 @@ export class GameCell extends Phaser.GameObjects.Rectangle {
   }
 
   private cleanBuiltTowerCallbacks() {
-    console.warn("### CLEAN BUILT CALLBACKS");
     this.disableInteractive();
     const { onBuiltTowerClicked } = this.options;
     if (onBuiltTowerClicked) {
@@ -199,7 +195,7 @@ export class GameCell extends Phaser.GameObjects.Rectangle {
           if (pointer.leftButtonReleased()) {
             onPicked(this);
           }
-        },
+        }
       );
     }
     this.on(Phaser.Input.Events.POINTER_OVER, () => {

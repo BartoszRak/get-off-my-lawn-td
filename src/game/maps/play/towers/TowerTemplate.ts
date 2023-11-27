@@ -19,4 +19,5 @@ export interface TowerTemplate {
   shotSound: Sound;
   defaultTargeting: TowerTargeting;
   levels: TowerLevel[];
+  bulletSpeed: number;
 }

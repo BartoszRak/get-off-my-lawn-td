@@ -7,6 +7,7 @@ export const canonTowerTemplate: TowerTemplate = {
   name: "Cannon gun",
   shotSound: Sound.CannonShoot,
   defaultTargeting: TowerTargeting.Strongest,
+  bulletSpeed: 200,
   levels: [
     {
       cost: 100,

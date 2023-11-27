@@ -38,7 +38,7 @@ export class Tower extends Phaser.GameObjects.Group {
     private readonly position: Position,
     private readonly size: Size,
     public readonly data: TowerTemplate,
-    options: Partial<TowerOptions> = defaultOptions,
+    options: Partial<TowerOptions> = {},
     private level = 0
   ) {
     super(scene);
@@ -214,6 +214,7 @@ export class Tower extends Phaser.GameObjects.Group {
       {
         image: images.bullet,
         damage,
+        speed: this.data.bulletSpeed,
       }
     );
     this.bulletsGroup.add(bullet);
